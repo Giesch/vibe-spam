@@ -39,10 +39,6 @@ impl From<&session::Data> for ElmSessionJson {
     fn from(data: &session::Data) -> Self {
         Self {
             session_id: data.session_id.to_string(),
-            email: data
-                .google_login
-                .as_ref()
-                .map(|login| login.email.to_string()),
         }
     }
 }
@@ -69,7 +65,6 @@ pub struct ElmFlagsJson {
 #[serde(rename_all = "camelCase")]
 pub struct ElmSessionJson {
     session_id: String,
-    email: Option<String>,
 }
 
 #[derive(Template)]
@@ -83,8 +78,8 @@ impl IndexTemplate {
     pub fn new(assets: &Assets, flags_json: ElmFlagsJson) -> Self {
         let index_js = assets.index_js.to_string();
 
-        // This serialize can fail only if something fundementally wrong
-        // is included in elm flags; ie a mutex, or a map with number keys
+        // This serialize can fail only if something fundementally wrong is
+        // included in elm flags; ie a mutex, or a map with number keys
         let flags = serde_json::to_string(&flags_json).expect("failed to serialize elm flags");
 
         Self { index_js, flags }

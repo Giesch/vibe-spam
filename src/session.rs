@@ -16,6 +16,7 @@ const SESSION_ID: &str = "session-id";
 
 pub struct Session {
     data: Data,
+    #[allow(dead_code)] // this is necessary for non-anonymous sessions
     manager: Manager,
 }
 
@@ -32,12 +33,6 @@ impl Session {
 
     pub fn data(&self) -> &Data {
         &self.data
-    }
-
-    pub async fn login(&mut self, login: GoogleLogin) -> anyhow::Result<()> {
-        self.data = self.manager.login(login, self.data.session_id).await?;
-
-        Ok(())
     }
 }
 
@@ -81,22 +76,11 @@ where
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Data {
     pub session_id: Uuid,
-    pub google_login: Option<GoogleLogin>,
 }
 
 impl Data {
     fn anonymous(session_id: Uuid) -> Self {
-        Self {
-            session_id,
-            google_login: None,
-        }
-    }
-
-    fn logged_in(session_id: Uuid, login: GoogleLogin) -> Self {
-        Self {
-            session_id,
-            google_login: Some(login),
-        }
+        Self { session_id }
     }
 }
 
@@ -114,31 +98,7 @@ impl std::fmt::Debug for Manager {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct GoogleLogin {
-    pub id: String,
-    pub email: String,
-}
-
 impl Manager {
-    async fn login(&self, login: GoogleLogin, old_session_id: Uuid) -> anyhow::Result<Data> {
-        let mut redis = self
-            .redis_pool
-            .get()
-            .await
-            .context("failed to check out redis connection from pool")?;
-
-        let _del = redis
-            .del(old_session_id.to_string())
-            .await
-            .context("failed to remove old session id")?;
-
-        let new_session_id = Uuid::new_v4();
-        let data = Data::logged_in(new_session_id, login);
-
-        self.save_session(&mut redis, new_session_id, data).await
-    }
-
     async fn create_anonymous_session(&self) -> anyhow::Result<Data> {
         let mut redis = self
             .redis_pool

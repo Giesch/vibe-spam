@@ -8,7 +8,7 @@ use bb8_redis::RedisConnectionManager;
 use schema::AppSchema;
 use secrecy::ExposeSecret;
 use std::sync::Arc;
-use tower_cookies::CookieManagerLayer;
+use tower_cookies::{CookieManagerLayer, Key};
 use tower_http::trace::TraceLayer;
 
 mod cors;
@@ -22,8 +22,7 @@ pub fn make_router(
     settings: Settings,
 ) -> anyhow::Result<Router> {
     let assets = static_files::list_assets_dir(&settings.dist)?;
-    let cookie_key =
-        tower_cookies::Key::from(settings.app_signing_secret.expose_secret().as_bytes());
+    let cookie_key = Key::from(settings.app_signing_secret.expose_secret().as_bytes());
 
     let router = Router::new()
         .route("/", get(static_files::index_html))
