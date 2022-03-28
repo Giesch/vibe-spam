@@ -1,0 +1,7 @@
+* Now
+- [X] copy code from previous project
+- [ ] modify session to be anon only
+
+* Next
+- [ ] simplify dev/prod split re: flags in main.js
+- [ ] make telemetry module work nicer/more standard with axum

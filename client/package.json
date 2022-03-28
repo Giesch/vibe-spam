@@ -1,0 +1,32 @@
+{
+  "name": "rogue-wizard",
+  "version": "0.0.0",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "npm run setup && npm run config:local:prod && npm run dev",
+    "dev": "concurrently \"elm-spa watch\" \"vite\"",
+    "build": "elm-spa gen && vite build",
+    "api": "elm-graphql https://rogue-wizard.fly.dev/api/graphql --base RogueWizard --output .elm-graphql",
+    "tw": "rm -rf .elm-tailwind-modules && node scripts/generateTailwind.js",
+    "setup": "npm ci && npx elm-tooling install && npm run api && npm run tw",
+    "build:docker": "npm run setup && npm run config:prod && npm run build",
+    "build:github": "npm run setup && npm run config:local && npm run build",
+    "config:local": "mkdir -p .config && cp config/Local.elm .config/Config.elm && cp config/local.env .env",
+    "config:local:prod": "mkdir -p .config && cp config/Prod.elm .config/Config.elm && cp config/local-prod.env .env",
+    "config:prod": "mkdir -p .config && cp config/Prod.elm .config/Config.elm && rm -f .env"
+  },
+  "devDependencies": {
+    "@dillonkearns/elm-graphql": "^4.2.4",
+    "@tailwindcss/aspect-ratio": "^0.2.0",
+    "@tailwindcss/forms": "^0.3.2",
+    "@tailwindcss/typography": "^0.4.0",
+    "concurrently": "6.0.2",
+    "elm-spa": "6.0.0",
+    "elm-tailwind-modules": "^0.3.2",
+    "elm-tooling": "^1.7.0",
+    "postcss": "^8.4.8",
+    "tailwindcss": "^2.2.19",
+    "vite": "2.3.8",
+    "vite-plugin-elm": "2.4.1"
+  }
+}

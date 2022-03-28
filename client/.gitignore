@@ -1,0 +1,13 @@
+.DS_Store
+elm-stuff
+node_modules
+dist
+
+# generated code
+.elm-spa
+.elm-graphql
+.elm-tailwind-modules
+
+# swappable configuration
+.config
+.env

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <body>
+    <!-- NOTE
+         In prod, a div with flags json content is added via a backend template.
+         In local dev, the div is injected after hitting a json endpoint.
+         This makes things weird.
+
+         The real html served is in /templates.index.html,
+         so html changes here must be duplicated there.
+         However, javascript in this file does get compiled into the final index.js by vite.
+         Avoid adding more javascript here to keep the build from getting more confusing.
+    -->
+
+    <script type="module" src="/main.js"></script>
+    <script type="module">
+      import { initWithFlags } from './main';
+
+      initWithFlags();
+    </script>
+  </body>
+</html>

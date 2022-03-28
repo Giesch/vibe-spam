@@ -1,0 +1,12 @@
+.env
+.dockerignore
+target/
+tests/
+Dockerfile
+scripts/
+migrations/
+
+/client/elm-stuff
+/client/node_modules
+/client/public/dist
+/client/config/Local.elm

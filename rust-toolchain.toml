@@ -1,0 +1,3 @@
+[toolchain]
+# NOTE this should match the Dockerfile
+channel = "1.59.0"
