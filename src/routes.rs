@@ -5,7 +5,7 @@ use axum::extract::Extension;
 use axum::routing::{get, post};
 use axum::Router;
 use bb8_redis::RedisConnectionManager;
-use schema::AppSchema;
+use schema::VibeSpam;
 use secrecy::ExposeSecret;
 use std::sync::Arc;
 use tower_cookies::{CookieManagerLayer, Key};
@@ -17,7 +17,7 @@ mod health;
 mod static_files;
 
 pub fn make_router(
-    schema: AppSchema,
+    schema: VibeSpam,
     redis: bb8::Pool<RedisConnectionManager>,
     settings: Settings,
 ) -> anyhow::Result<Router> {
