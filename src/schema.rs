@@ -12,9 +12,9 @@ impl Query {
     }
 }
 
-pub type AppSchema = Schema<Query, EmptyMutation, EmptySubscription>;
+pub type VibeSpam = Schema<Query, EmptyMutation, EmptySubscription>;
 
-pub fn make(redis: bb8::Pool<RedisConnectionManager>) -> AppSchema {
+pub fn make(redis: bb8::Pool<RedisConnectionManager>) -> VibeSpam {
     Schema::build(Query, EmptyMutation, EmptySubscription)
         .data(redis)
         .finish()
