@@ -59,8 +59,8 @@ jobs:
         # these have to exist for the server to start,
         # but the js is currently unused by tests
         run: |
-          mkdir -p $RW_DIST/assets
-          touch $RW_DIST/assets/index.js
+          mkdir -p $APP_DIST/assets
+          touch $APP_DIST/assets/index.js
 
       - name: Cargo Test
         uses: actions-rs/cargo@v1
