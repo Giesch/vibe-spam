@@ -1,9 +1,21 @@
 * Now
-- [X] copy code from previous project
-- [X] modify session to be anon only
-- [X] simplify dev/prod split re: flags in main.js
+- [X] deploy the app!
+- [ ] add lobby to home page
+  - [ ] list open games (paging)
+  - [ ] create an open game
+    generate the game name
+    no password for now
+  - [ ] subscribe to open games
+    this will require figuring out redis pubsub
+    how does this interact with paging?
+    does this get rid of the need for a 'list' query?
+    - [ ] figure out redis pubsub
+    - [ ] figure out websocket
 
 * Next
+- [-] catch up reading z2p
+- [ ] make websocket conn reliable
+  mimic how phoenix channels handle reconnect
 
 * Soon
 
