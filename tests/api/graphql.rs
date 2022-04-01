@@ -7,13 +7,12 @@ async fn empty_lobby() {
     let query = r#"{
       lobby {
         rooms {
-          name
+          title
         }
       }
     }"#;
 
     let data = app.graphql_query(query).await;
-    let data = dbg!(data);
     let rooms = data["lobby"]["rooms"].as_array().unwrap();
 
     assert_eq!(rooms.len(), 0);

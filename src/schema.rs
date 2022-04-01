@@ -9,6 +9,8 @@ use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use uuid::Uuid;
 
+mod lobby;
+
 const LOBBY_ROOMS: &str = "lobby:rooms";
 
 pub struct Query;
@@ -16,18 +18,8 @@ pub struct Query;
 #[Object]
 impl Query {
     async fn lobby<'ctx>(&self, ctx: &'ctx Context<'_>) -> Result<LobbyResponse> {
-        use anyhow::Context;
-        let db = ctx.db();
-
-        let room_rows = sqlx::query!("select * from rooms")
-            .fetch_all(db)
-            .await
-            .context("failed to fetch rooms")?;
-
-        let rooms: Vec<Room> = room_rows
-            .into_iter()
-            .map(|row| Room { name: row.title })
-            .collect();
+        let room_rows = lobby::list_rooms(ctx.db()).await?;
+        let rooms: Vec<Room> = room_rows.into_iter().map(Into::into).collect();
 
         Ok(LobbyResponse { rooms })
     }
@@ -37,13 +29,16 @@ pub struct Mutation;
 
 #[Object]
 impl Mutation {
-    async fn create_room<'ctx>(&self, ctx: &'ctx Context<'_>) -> Result<LobbyResponse> {
-        let mut redis = ctx.redis().await?;
+    async fn create_room<'ctx>(&self, ctx: &'ctx Context<'_>) -> Result<Room> {
+        let db = ctx.db();
 
-        let name = Uuid::new_v4().to_string();
-        let room = RedisRoom { name };
+        // TODO generate fun names
+        let title = Uuid::new_v4().to_string();
+        let room = lobby::create_room(db, title).await?;
 
-        todo!("randomly generate, create, and return a room")
+        // TODO publish to redis
+
+        Ok(room.into())
     }
 }
 
@@ -54,7 +49,7 @@ pub struct LobbyResponse {
 
 #[derive(SimpleObject)]
 pub struct Room {
-    name: String,
+    title: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -62,9 +57,9 @@ struct RedisRoom {
     name: String,
 }
 
-impl From<RedisRoom> for Room {
-    fn from(room: RedisRoom) -> Self {
-        Self { name: room.name }
+impl From<lobby::RoomRow> for Room {
+    fn from(row: lobby::RoomRow) -> Self {
+        Self { title: row.title }
     }
 }
 
