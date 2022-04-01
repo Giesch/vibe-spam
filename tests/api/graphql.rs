@@ -1,15 +1,20 @@
 use crate::helpers::*;
 
 #[tokio::test]
-async fn example() {
+async fn empty_lobby() {
     let app = spawn_app().await;
 
     let query = r#"{
-      add(a: 1, b: 1)
+      lobby {
+        rooms {
+          name
+        }
+      }
     }"#;
 
     let data = app.graphql_query(query).await;
-    let result = data["add"].as_i64().unwrap();
+    let data = dbg!(data);
+    let rooms = data["lobby"]["rooms"].as_array().unwrap();
 
-    assert_eq!(result, 2);
+    assert_eq!(rooms.len(), 0);
 }

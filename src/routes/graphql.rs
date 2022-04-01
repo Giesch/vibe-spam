@@ -19,8 +19,3 @@ pub async fn playground() -> impl IntoResponse {
     let playground_config = GraphQLPlaygroundConfig::new(ROUTE);
     Html(playground_source(playground_config))
 }
-
-#[allow(deprecated)] // I couldn't get the recommended alternative to compile
-pub fn layer(schema: VibeSpam) -> axum::AddExtensionLayer<VibeSpam> {
-    axum::AddExtensionLayer::new(schema)
-}
