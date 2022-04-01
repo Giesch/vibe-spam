@@ -63,10 +63,10 @@ impl From<lobby::RoomRow> for Room {
     }
 }
 
-pub type VibeSpam = Schema<Query, EmptyMutation, EmptySubscription>;
+pub type VibeSpam = Schema<Query, Mutation, EmptySubscription>;
 
 pub fn make(db: PgPool, redis: Pool<RedisConnectionManager>) -> VibeSpam {
-    Schema::build(Query, EmptyMutation, EmptySubscription)
+    Schema::build(Query, Mutation, EmptySubscription)
         .data(db)
         .data(redis)
         .finish()

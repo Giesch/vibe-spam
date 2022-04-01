@@ -1,4 +1,4 @@
-# rogue-wizard client
+# vibe-spam client
 
 ## first-time setup
 
