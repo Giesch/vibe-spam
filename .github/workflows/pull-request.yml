@@ -102,7 +102,7 @@ jobs:
 
       - name: Check sqlx-data.json
         run: |
-          cargo sqlx prepare --check -- --bin server
+          cargo sqlx prepare --check -- --bin vibe_spam
 
       - name: Make Fake Assets Files
         # these have to exist for the server to start,
