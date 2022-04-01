@@ -11,17 +11,23 @@ use uuid::Uuid;
 
 const LOBBY_ROOMS: &str = "lobby:rooms";
 
-// TODO paging - hard limit?
-
 pub struct Query;
 
 #[Object]
 impl Query {
     async fn lobby<'ctx>(&self, ctx: &'ctx Context<'_>) -> Result<LobbyResponse> {
-        let mut redis = ctx.redis().await?;
-        let rooms = redis.lobby_rooms().await?;
+        use anyhow::Context;
+        let db = ctx.db();
 
-        let rooms: Vec<Room> = rooms.into_iter().map(Into::into).collect();
+        let room_rows = sqlx::query!("select * from rooms")
+            .fetch_all(db)
+            .await
+            .context("failed to fetch rooms")?;
+
+        let rooms: Vec<Room> = room_rows
+            .into_iter()
+            .map(|row| Room { name: row.title })
+            .collect();
 
         Ok(LobbyResponse { rooms })
     }
@@ -74,6 +80,7 @@ pub fn make(db: PgPool, redis: Pool<RedisConnectionManager>) -> VibeSpam {
 #[async_trait]
 trait VibeSpamContext {
     async fn redis(&self) -> anyhow::Result<PooledConnection<RedisConnectionManager>>;
+    fn db(&self) -> &PgPool;
 }
 
 #[async_trait]
@@ -86,6 +93,10 @@ impl<'ctx> VibeSpamContext for Context<'ctx> {
             .await
             .context("failed to checkout redis connection from pool")
     }
+
+    fn db(&self) -> &PgPool {
+        self.data_unchecked::<PgPool>()
+    }
 }
 
 #[async_trait]
@@ -93,7 +104,6 @@ trait LobbyRepo {
     async fn lobby_rooms(&mut self) -> anyhow::Result<Vec<RedisRoom>>;
 }
 
-// TODO move this
 #[async_trait]
 impl<'a> LobbyRepo for PooledConnection<'a, RedisConnectionManager> {
     async fn lobby_rooms(&mut self) -> anyhow::Result<Vec<RedisRoom>> {

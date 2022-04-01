@@ -26,17 +26,34 @@ jobs:
           --health-timeout 1s
           --health-retries 5
 
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: rogue_wizard
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 3s
+          --health-timeout 1s
+          --health-retries 5
+
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
 
       - name: Setup Env
         run: |
+          echo "SQLX_VERSION=0.5.7" >> $GITHUB_ENV
+          echo "SQLX_FEATURES=postgres" >> $GITHUB_ENV
           echo "APP_DIST=$GITHUB_WORKSPACE/client/public/dist" >> $GITHUB_ENV
           echo "APP_ENV=local" >> $GITHUB_ENV
           echo "APP_HOST=localhost" >> $GITHUB_ENV
           echo "APP_PORT=8080" >> $GITHUB_ENV
           echo "APP_URL=http://localhost:8000" >> $GITHUB_ENV
+          echo "DATABASE_URL=postgres://postgres:postgres@localhost:5432/rogue_wizard" >> $GITHUB_ENV
           echo "REDIS_URL=redis://localhost:6379" >> $GITHUB_ENV
           echo "APP_SIGNING_SECRET=DEZ+TXqTNjb+qQu05MibWt4151A9wc1ZynbWv3dU8sBE+39IPJz9ZMDfQplUzrVLywDs9oNxboZzPmK892vx2Q==" >> $GITHUB_ENV
 
@@ -55,6 +72,38 @@ jobs:
         with:
           toolchain: stable
 
+      - name: Cache sqlx-cli
+        uses: actions/cache@v2
+        id: cache-sqlx
+        with:
+          path: |
+            ~/.cargo/bin/sqlx
+            ~/.cargo/bin/cargo-sqlx
+          key: ${{ runner.os }}-sqlx-${{ env.SQLX_VERSION }}-${{ env.SQLX_FEATURES }}
+
+      - name: Install sqlx-cli
+        uses: actions-rs/cargo@v1
+        if: steps.cache-sqlx.outputs.cache-hit == false
+        with:
+          command: install
+          args: >
+            sqlx-cli
+            --force
+            --version=${{ env.SQLX_VERSION }}
+            --features=${{ env.SQLX_FEATURES }}
+            --no-default-features
+            --locked
+
+      - name: Migrate Database
+        run: |
+          sudo apt-get install libpq-dev -y
+          sqlx database create
+          sqlx migrate run
+
+      - name: Check sqlx-data.json
+        run: |
+          cargo sqlx prepare --check -- --bin server
+
       - name: Make Fake Assets Files
         # these have to exist for the server to start,
         # but the js is currently unused by tests
@@ -71,17 +120,35 @@ jobs:
     name: Clippy Check
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: rogue_wizard
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 3s
+          --health-timeout 1s
+          --health-retries 5
+
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
 
       - name: Setup Env
         run: |
+          echo "SQLX_VERSION=0.5.7" >> $GITHUB_ENV
+          echo "SQLX_FEATURES=postgres" >> $GITHUB_ENV
           echo "APP_DIST=$GITHUB_WORKSPACE/client/public/dist" >> $GITHUB_ENV
           echo "APP_ENV=local" >> $GITHUB_ENV
           echo "APP_HOST=localhost" >> $GITHUB_ENV
           echo "APP_PORT=8080" >> $GITHUB_ENV
           echo "APP_URL=http://localhost:8000" >> $GITHUB_ENV
+          echo "DATABASE_URL=postgres://postgres:postgres@localhost:5432/rogue_wizard" >> $GITHUB_ENV
           echo "REDIS_URL=redis://localhost:6379" >> $GITHUB_ENV
           echo "APP_SIGNING_SECRET=DEZ+TXqTNjb+qQu05MibWt4151A9wc1ZynbWv3dU8sBE+39IPJz9ZMDfQplUzrVLywDs9oNxboZzPmK892vx2Q==" >> $GITHUB_ENV
 
@@ -91,6 +158,33 @@ jobs:
           toolchain: stable
           components: clippy
           override: true
+
+      - name: Cache sqlx-cli
+        uses: actions/cache@v2
+        id: cache-sqlx
+        with:
+          path: |
+            ~/.cargo/bin/sqlx
+          key: ${{ runner.os }}-sqlx-${{ env.SQLX_VERSION }}-${{ env.SQLX_FEATURES }}
+
+      - name: Install sqlx-cli
+        uses: actions-rs/cargo@v1
+        if: steps.cache-sqlx.outputs.cache-hit == false
+        with:
+          command: install
+          args: >
+            sqlx-cli
+            --force
+            --version=${{ env.SQLX_VERSION }}
+            --features=${{ env.SQLX_FEATURES }}
+            --no-default-features
+            --locked
+
+      - name: Migrate Database
+        run: |
+          sudo apt-get install libpq-dev -y
+          sqlx database create
+          sqlx migrate run
 
       - name: Run Clippy
         uses: actions-rs/clippy-check@v1
