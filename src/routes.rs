@@ -7,6 +7,7 @@ use axum::Router;
 use bb8_redis::RedisConnectionManager;
 use schema::VibeSpam;
 use secrecy::ExposeSecret;
+use sqlx::PgPool;
 use std::sync::Arc;
 use tower_cookies::{CookieManagerLayer, Key};
 use tower_http::trace::TraceLayer;
@@ -18,6 +19,7 @@ mod static_files;
 
 pub fn make_router(
     schema: VibeSpam,
+    db: PgPool,
     redis: bb8::Pool<RedisConnectionManager>,
     settings: Settings,
 ) -> anyhow::Result<Router> {
@@ -35,6 +37,7 @@ pub fn make_router(
         .layer(cors::layer())
         .layer(TraceLayer::new_for_http())
         .layer(Extension(schema))
+        .layer(Extension(db))
         .layer(Extension(redis))
         .layer(Extension(Arc::new(settings)))
         .layer(Extension(Arc::new(assets)))

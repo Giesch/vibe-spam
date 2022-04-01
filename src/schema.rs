@@ -6,6 +6,7 @@ use bb8::{Pool, PooledConnection};
 use bb8_redis::redis::AsyncCommands;
 use bb8_redis::RedisConnectionManager;
 use serde::{Deserialize, Serialize};
+use sqlx::PgPool;
 use uuid::Uuid;
 
 const LOBBY_ROOMS: &str = "lobby:rooms";
@@ -63,8 +64,9 @@ impl From<RedisRoom> for Room {
 
 pub type VibeSpam = Schema<Query, EmptyMutation, EmptySubscription>;
 
-pub fn make(redis: Pool<RedisConnectionManager>) -> VibeSpam {
+pub fn make(db: PgPool, redis: Pool<RedisConnectionManager>) -> VibeSpam {
     Schema::build(Query, EmptyMutation, EmptySubscription)
+        .data(db)
         .data(redis)
         .finish()
 }
