@@ -28,5 +28,8 @@
     "tailwindcss": "^2.2.19",
     "vite": "2.3.8",
     "vite-plugin-elm": "2.4.1"
+  },
+  "dependencies": {
+    "autoprefixer": "^10.4.4"
   }
 }
