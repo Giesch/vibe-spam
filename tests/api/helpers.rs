@@ -1,5 +1,6 @@
 use once_cell::sync::Lazy;
 use secrecy::Secret;
+use serde_json::json;
 use sqlx::postgres::PgConnectOptions;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
 use uuid::Uuid;
@@ -105,7 +106,7 @@ async fn create_test_db(db_name: &str) {
 
 impl TestApp {
     pub async fn graphql_query(&self, query: &str) -> serde_json::Value {
-        let graphql_request = serde_json::json!({ "query": query });
+        let graphql_request = json!({ "query": query });
         let graphql_route = format!("{}/api/graphql", &self.address);
 
         let response = self
