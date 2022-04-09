@@ -1,5 +1,6 @@
 module Pages.Home_ exposing (Model, Msg, page)
 
+import Api
 import Components.Header as Header
 import Effect exposing (Effect)
 import Gen.Params.Home_ exposing (Params)
