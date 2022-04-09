@@ -1,12 +1,19 @@
-module Api exposing (..)
+module Api exposing
+    ( GraphqlData
+    , LobbyData
+    , RoomData
+    , createRoom
+    , fetchLobby
+    )
 
 import Config
 import Effect exposing (Effect)
 import Graphql.Http
-import Graphql.Operation exposing (RootQuery)
+import Graphql.Operation exposing (RootMutation, RootQuery)
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet)
 import RemoteData exposing (RemoteData)
-import VibeSpam.Object as Object exposing (LobbyResponse, Room)
+import VibeSpam.Mutation as Mutation
+import VibeSpam.Object as Object
 import VibeSpam.Object.LobbyResponse as LobbyResponse
 import VibeSpam.Object.Room as Room
 import VibeSpam.Query as Query
@@ -31,10 +38,42 @@ type alias RoomData =
     }
 
 
-lobbySelection : SelectionSet LobbyData LobbyResponse
+lobbySelection : SelectionSet LobbyData Object.LobbyResponse
 lobbySelection =
-    SelectionSet.map LobbyData (LobbyResponse.rooms roomSelection)
+    SelectionSet.map LobbyData
+        (LobbyResponse.rooms roomSelection)
 
 
+roomSelection : SelectionSet RoomData Object.Room
 roomSelection =
     SelectionSet.map RoomData Room.title
+
+
+fetchLobby : (GraphqlData LobbyData -> msg) -> Effect msg
+fetchLobby toMsg =
+    queryEffect toMsg lobbyQuery
+
+
+createRoom : SelectionSet RoomData RootMutation
+createRoom =
+    Mutation.createRoom roomSelection
+
+
+
+-- Helpers
+
+
+queryEffect :
+    (GraphqlData resp -> msg)
+    -> SelectionSet resp RootQuery
+    -> Effect msg
+queryEffect toMsg query =
+    query
+        |> Graphql.Http.queryRequest endpoint
+        |> Graphql.Http.send (RemoteData.fromResult >> toMsg)
+        |> Effect.fromCmd
+
+
+endpoint : String
+endpoint =
+    Config.apiTarget ++ "/api/graphql"
