@@ -10,8 +10,6 @@ use uuid::Uuid;
 
 mod lobby;
 
-const LOBBY_ROOMS: &str = "lobby:rooms";
-
 pub struct Query;
 
 #[Object]
