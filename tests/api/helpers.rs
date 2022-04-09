@@ -1,5 +1,9 @@
 use once_cell::sync::Lazy;
 use secrecy::Secret;
+use serde_json::json;
+use sqlx::postgres::PgConnectOptions;
+use sqlx::{Connection, Executor, PgConnection, PgPool};
+use uuid::Uuid;
 use vibe_spam::app::App;
 use vibe_spam::settings::Settings;
 use vibe_spam::telemetry;
@@ -28,9 +32,11 @@ pub struct TestApp {
 
 pub async fn spawn_app() -> TestApp {
     Lazy::force(&TRACING);
+    dotenv::dotenv().ok();
 
-    let settings = test_settings();
-
+    let db_name = Uuid::new_v4().to_string();
+    create_test_db(&db_name).await;
+    let settings = test_settings(&db_name);
     let app = App::build(settings).await.expect("failed to build app");
 
     let port = app.port();
@@ -55,8 +61,12 @@ pub async fn spawn_app() -> TestApp {
 const MOCK_SIGNING_SECRET: &str =
     "DEZ+TXqTNjb+qQu05MibWt4151A9wc1ZynbWv3dU8sBE+39IPJz9ZMDfQplUzrVLywDs9oNxboZzPmK892vx2Q==";
 
-fn test_settings() -> Settings {
+fn test_settings(db_name: &str) -> Settings {
     let mut settings = Settings::from_env().expect("failed to read config");
+
+    let db_url = format!("postgres://postgres:postgres@localhost:5432/{db_name}");
+    settings.db_url = Secret::new(db_url);
+
     // Use a random OS port
     settings.app_port = 0;
 
@@ -65,9 +75,38 @@ fn test_settings() -> Settings {
     settings
 }
 
+fn test_conn_with_db_name(db_name: &str) -> PgConnectOptions {
+    let db_url = std::env::var("DATABASE_URL").expect("No DATABASE_URL set");
+
+    use std::str::FromStr;
+    let pg_options = PgConnectOptions::from_str(&db_url).expect("unable to parse DATABASE_URL");
+
+    pg_options.database(db_name)
+}
+
+async fn create_test_db(db_name: &str) {
+    let mut conn = PgConnection::connect_with(&test_conn_with_db_name("postgres"))
+        .await
+        .expect("Failed to connect to postgres.");
+
+    conn.execute(&*format!(r#"CREATE DATABASE "{}";"#, db_name))
+        .await
+        .expect("Failed to create database.");
+
+    // Migrate database
+    let opts = test_conn_with_db_name(db_name);
+    let conn = PgPool::connect_with(opts)
+        .await
+        .expect("Failed to connect to Postgres.");
+    sqlx::migrate!("./migrations")
+        .run(&conn)
+        .await
+        .expect("Failed to migrate the database");
+}
+
 impl TestApp {
     pub async fn graphql_query(&self, query: &str) -> serde_json::Value {
-        let graphql_request = serde_json::json!({ "query": query });
+        let graphql_request = json!({ "query": query });
         let graphql_route = format!("{}/api/graphql", &self.address);
 
         let response = self

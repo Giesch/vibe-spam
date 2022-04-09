@@ -8,6 +8,7 @@ use axum::Server;
 use bb8_redis::RedisConnectionManager;
 use hyper::server::conn::AddrIncoming;
 use secrecy::ExposeSecret;
+use sqlx::postgres::PgPoolOptions;
 use std::net::{SocketAddr, TcpListener};
 
 type AppServer = Server<AddrIncoming, IntoMakeService<Router>>;
@@ -25,6 +26,11 @@ impl App {
         let addr = listener.local_addr()?;
         let port = addr.port();
 
+        let pg_options = settings.pg_options()?;
+        let db = PgPoolOptions::new()
+            .connect_timeout(std::time::Duration::from_secs(2))
+            .connect_lazy_with(pg_options);
+
         let redis_url: &str = settings.redis_url.expose_secret();
         let redis_manager =
             RedisConnectionManager::new(redis_url).context("failed to create redis connection")?;
@@ -33,8 +39,8 @@ impl App {
             .await
             .context("failed to create redis pool")?;
 
-        let schema = schema::make(redis.clone());
-        let router = routes::make_router(schema, redis, settings)?;
+        let schema = schema::make(db.clone(), redis.clone());
+        let router = routes::make_router(schema, db, redis, settings)?;
         let server = axum::Server::from_tcp(listener)?.serve(router.into_make_service());
 
         Ok(Self { port, server })

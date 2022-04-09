@@ -1,6 +1,7 @@
 use anyhow::Context;
-use secrecy::Secret;
+use secrecy::{ExposeSecret, Secret};
 use serde_aux::field_attributes::deserialize_number_from_string;
+use sqlx::postgres::PgConnectOptions;
 use std::str::FromStr;
 
 #[derive(serde::Deserialize, Clone)]
@@ -11,6 +12,8 @@ pub struct Settings {
     #[serde(deserialize_with = "deserialize_number_from_string")]
     pub app_port: u16,
 
+    /// The DATABASE_URL set by fly.io
+    pub db_url: Secret<String>,
     pub redis_url: Secret<String>,
 
     /// The path to the 'dist' directory that contains the compiled elm client
@@ -34,6 +37,9 @@ impl Settings {
         let app_port = require_env_var("APP_PORT")?;
         let app_port = u16::from_str(&app_port).context("failed to parse APP_PORT")?;
 
+        let db_url = require_env_var("DATABASE_URL")?;
+        let db_url = Secret::new(db_url);
+
         let redis_url = require_env_var("REDIS_URL")?;
         let redis_url = Secret::new(redis_url);
 
@@ -48,11 +54,22 @@ impl Settings {
             app_env,
             app_host,
             app_port,
+            db_url,
             redis_url,
             dist,
             app_url,
             app_signing_secret,
         })
+    }
+
+    pub fn pg_options(&self) -> anyhow::Result<PgConnectOptions> {
+        let options: PgConnectOptions = self
+            .db_url
+            .expose_secret()
+            .parse()
+            .context("failed to parse DATABASE_URL")?;
+
+        Ok(options)
     }
 }
 

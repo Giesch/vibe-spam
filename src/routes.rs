@@ -4,9 +4,11 @@ use crate::settings::Settings;
 use axum::extract::Extension;
 use axum::routing::{get, post};
 use axum::Router;
+use bb8::Pool;
 use bb8_redis::RedisConnectionManager;
 use schema::VibeSpam;
 use secrecy::ExposeSecret;
+use sqlx::PgPool;
 use std::sync::Arc;
 use tower_cookies::{CookieManagerLayer, Key};
 use tower_http::trace::TraceLayer;
@@ -18,7 +20,8 @@ mod static_files;
 
 pub fn make_router(
     schema: VibeSpam,
-    redis: bb8::Pool<RedisConnectionManager>,
+    db: PgPool,
+    redis: Pool<RedisConnectionManager>,
     settings: Settings,
 ) -> anyhow::Result<Router> {
     let assets = static_files::list_assets_dir(&settings.dist)?;
@@ -32,9 +35,10 @@ pub fn make_router(
         .route(graphql::ROUTE, get(graphql::playground))
         .route(graphql::ROUTE, post(graphql::handler))
         .fallback(get(static_files::index_html))
-        .layer(graphql::layer(schema))
         .layer(cors::layer())
         .layer(TraceLayer::new_for_http())
+        .layer(Extension(schema))
+        .layer(Extension(db))
         .layer(Extension(redis))
         .layer(Extension(Arc::new(settings)))
         .layer(Extension(Arc::new(assets)))

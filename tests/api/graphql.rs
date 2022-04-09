@@ -1,15 +1,41 @@
 use crate::helpers::*;
 
+const LIST_ROOMS: &str = r#"{
+  lobby {
+    rooms {
+      title
+    }
+  }
+}"#;
+
 #[tokio::test]
-async fn example() {
+async fn empty_lobby() {
     let app = spawn_app().await;
 
-    let query = r#"{
-      add(a: 1, b: 1)
-    }"#;
+    let data = app.graphql_query(LIST_ROOMS).await;
+    let rooms = data["lobby"]["rooms"].as_array().unwrap();
+
+    assert_eq!(rooms.len(), 0);
+}
+
+#[tokio::test]
+async fn create_room() {
+    let app = spawn_app().await;
+
+    let query = r#"
+      mutation {
+        createRoom {
+          title
+        }
+      }
+    "#;
 
     let data = app.graphql_query(query).await;
-    let result = data["add"].as_i64().unwrap();
+    let created_room_title = data["createRoom"]["title"].as_str().unwrap();
 
-    assert_eq!(result, 2);
+    let data = app.graphql_query(LIST_ROOMS).await;
+    let rooms = data["lobby"]["rooms"].as_array().unwrap();
+
+    assert_eq!(rooms.len(), 1);
+    assert_eq!(&rooms[0]["title"], created_room_title);
 }
