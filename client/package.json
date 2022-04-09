@@ -6,7 +6,7 @@
     "start": "npm run setup && npm run config:local:prod && npm run dev",
     "dev": "concurrently \"elm-spa watch\" \"vite\"",
     "build": "elm-spa gen && vite build",
-    "api": "elm-graphql https://rogue-wizard.fly.dev/api/graphql --base RogueWizard --output .elm-graphql",
+    "api": "elm-graphql https://vibe-spam.fly.dev/api/graphql --base VibeSpam --output .elm-graphql",
     "tw": "rm -rf .elm-tailwind-modules && node scripts/generateTailwind.js",
     "setup": "npm ci && npx elm-tooling install && npm run api && npm run tw",
     "build:docker": "npm run setup && npm run config:prod && npm run build",

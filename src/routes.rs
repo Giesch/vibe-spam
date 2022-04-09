@@ -4,6 +4,7 @@ use crate::settings::Settings;
 use axum::extract::Extension;
 use axum::routing::{get, post};
 use axum::Router;
+use bb8::Pool;
 use bb8_redis::RedisConnectionManager;
 use schema::VibeSpam;
 use secrecy::ExposeSecret;
@@ -20,7 +21,7 @@ mod static_files;
 pub fn make_router(
     schema: VibeSpam,
     db: PgPool,
-    redis: bb8::Pool<RedisConnectionManager>,
+    redis: Pool<RedisConnectionManager>,
     settings: Settings,
 ) -> anyhow::Result<Router> {
     let assets = static_files::list_assets_dir(&settings.dist)?;
