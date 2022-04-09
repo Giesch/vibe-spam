@@ -7,6 +7,7 @@ import Gen.Params.Home_ exposing (Params)
 import Html.Styled as Html exposing (..)
 import Html.Styled.Attributes as Attr exposing (css)
 import Page
+import RemoteData exposing (RemoteData)
 import Request
 import Shared
 import Shared.Session as Session exposing (Session)
@@ -30,14 +31,16 @@ page shared req =
 
 type alias Model =
     { session : Maybe Session
+    , lobby : Api.GraphqlData Api.LobbyData
     }
 
 
 init : Shared.Model -> ( Model, Effect Msg )
 init shared =
     ( { session = shared.session
+      , lobby = RemoteData.NotAsked
       }
-    , Effect.none
+    , fetchLobby
     )
 
 
@@ -46,12 +49,14 @@ init shared =
 
 
 type Msg
-    = ReplaceMe
+    = GotLobby (Api.GraphqlData Api.LobbyData)
 
 
 update : Msg -> Model -> ( Model, Effect Msg )
 update msg model =
-    ( model, Effect.none )
+    case msg of
+        GotLobby lobby ->
+            ( { model | lobby = lobby }, Effect.none )
 
 
 
@@ -85,3 +90,12 @@ viewSession maybeSession =
 
         Nothing ->
             text "no session"
+
+
+
+-- Effects
+
+
+fetchLobby : Effect Msg
+fetchLobby =
+    Api.fetchLobby GotLobby
