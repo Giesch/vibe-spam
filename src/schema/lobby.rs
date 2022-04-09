@@ -17,6 +17,7 @@ pub async fn list_rooms(db: &PgPool) -> anyhow::Result<Vec<RoomRow>> {
         .context("failed to list rooms")
 }
 
+#[allow(clippy::panic)] // this is coming from within the sqlx macro
 pub async fn create_room(db: &PgPool, title: String) -> anyhow::Result<RoomRow> {
     sqlx::query_as!(
         RoomRow,
