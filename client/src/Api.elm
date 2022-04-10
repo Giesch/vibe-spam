@@ -19,13 +19,12 @@ import VibeSpam.Object.Room as Room
 import VibeSpam.Query as Query
 
 
+
+-- Public
+
+
 type alias GraphqlData a =
-    RemoteData (Graphql.Http.Error a) a
-
-
-lobbyQuery : SelectionSet LobbyData RootQuery
-lobbyQuery =
-    Query.lobby lobbySelection
+    RemoteData (Graphql.Http.Error ()) a
 
 
 type alias LobbyData =
@@ -36,6 +35,20 @@ type alias LobbyData =
 type alias RoomData =
     { title : String
     }
+
+
+fetchLobby : (GraphqlData LobbyData -> msg) -> Effect msg
+fetchLobby toMsg =
+    queryEffect toMsg lobbyQuery
+
+
+createRoom : (GraphqlData RoomData -> msg) -> Effect msg
+createRoom toMsg =
+    mutationEffect toMsg createRoomMutation
+
+
+
+-- Selections
 
 
 lobbySelection : SelectionSet LobbyData Object.LobbyResponse
@@ -49,28 +62,47 @@ roomSelection =
     SelectionSet.map RoomData Room.title
 
 
-fetchLobby : (GraphqlData LobbyData -> msg) -> Effect msg
-fetchLobby toMsg =
-    queryEffect toMsg lobbyQuery
+lobbyQuery : SelectionSet LobbyData RootQuery
+lobbyQuery =
+    Query.lobby lobbySelection
 
 
-createRoom : SelectionSet RoomData RootMutation
-createRoom =
+createRoomMutation : SelectionSet RoomData RootMutation
+createRoomMutation =
     Mutation.createRoom roomSelection
 
 
 
--- Helpers
+-- Effect Helpers
 
 
 queryEffect :
     (GraphqlData resp -> msg)
     -> SelectionSet resp RootQuery
     -> Effect msg
-queryEffect toMsg query =
-    query
+queryEffect toMsg selection =
+    selection
         |> Graphql.Http.queryRequest endpoint
-        |> Graphql.Http.send (RemoteData.fromResult >> toMsg)
+        |> Graphql.Http.send
+            (Graphql.Http.discardParsedErrorData
+                >> RemoteData.fromResult
+                >> toMsg
+            )
+        |> Effect.fromCmd
+
+
+mutationEffect :
+    (GraphqlData resp -> msg)
+    -> SelectionSet resp RootMutation
+    -> Effect msg
+mutationEffect toMsg selection =
+    selection
+        |> Graphql.Http.mutationRequest endpoint
+        |> Graphql.Http.send
+            (Graphql.Http.discardParsedErrorData
+                >> RemoteData.fromResult
+                >> toMsg
+            )
         |> Effect.fromCmd
 
 

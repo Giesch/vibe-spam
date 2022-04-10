@@ -50,6 +50,8 @@ init shared =
 
 type Msg
     = GotLobby (Api.GraphqlData Api.LobbyData)
+    | GotCreatedRoom (Api.GraphqlData Api.RoomData)
+    | CreateRoom
 
 
 update : Msg -> Model -> ( Model, Effect Msg )
@@ -57,6 +59,25 @@ update msg model =
     case msg of
         GotLobby lobby ->
             ( { model | lobby = lobby }, Effect.none )
+
+        GotCreatedRoom room ->
+            ( { model | lobby = addRoomToLobby model.lobby room }, Effect.none )
+
+        CreateRoom ->
+            ( model, createRoom )
+
+
+addRoomToLobby :
+    Api.GraphqlData Api.LobbyData
+    -> Api.GraphqlData Api.RoomData
+    -> Api.GraphqlData Api.LobbyData
+addRoomToLobby lobbyData roomData =
+    let
+        addRoom : Api.LobbyData -> Api.RoomData -> Api.LobbyData
+        addRoom lobby room =
+            { lobby | rooms = room :: lobby.rooms }
+    in
+    RemoteData.map2 addRoom lobbyData roomData
 
 
 
@@ -99,3 +120,8 @@ viewSession maybeSession =
 fetchLobby : Effect Msg
 fetchLobby =
     Api.fetchLobby GotLobby
+
+
+createRoom : Effect Msg
+createRoom =
+    Api.createRoom GotCreatedRoom
