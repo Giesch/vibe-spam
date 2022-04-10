@@ -5,7 +5,6 @@ use axum::async_trait;
 use bb8::{Pool, PooledConnection};
 use bb8_redis::RedisConnectionManager;
 use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use uuid::Uuid;
 
