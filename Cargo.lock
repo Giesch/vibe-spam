@@ -181,6 +181,7 @@ dependencies = [
  "async-stream",
  "async-trait",
  "bytes",
+ "chrono",
  "fast_chemail",
  "fnv",
  "futures-util",
@@ -197,6 +198,7 @@ dependencies = [
  "static_assertions",
  "tempfile",
  "thiserror",
+ "uuid",
 ]
 
 [[package]]
