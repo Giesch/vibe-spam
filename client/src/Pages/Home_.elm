@@ -61,23 +61,19 @@ update msg model =
             ( { model | lobby = lobby }, Effect.none )
 
         GotCreatedRoom room ->
-            ( { model | lobby = addRoomToLobby model.lobby room }, Effect.none )
+            let
+                newLobby =
+                    RemoteData.map2 addRoom model.lobby room
+            in
+            ( { model | lobby = newLobby }, Effect.none )
 
         CreateRoom ->
             ( model, createRoom )
 
 
-addRoomToLobby :
-    Api.GraphqlData Api.LobbyData
-    -> Api.GraphqlData Api.RoomData
-    -> Api.GraphqlData Api.LobbyData
-addRoomToLobby lobbyData roomData =
-    let
-        addRoom : Api.LobbyData -> Api.RoomData -> Api.LobbyData
-        addRoom lobby room =
-            { lobby | rooms = room :: lobby.rooms }
-    in
-    RemoteData.map2 addRoom lobbyData roomData
+addRoom : Api.LobbyData -> Api.RoomData -> Api.LobbyData
+addRoom lobby room =
+    { lobby | rooms = room :: lobby.rooms }
 
 
 
