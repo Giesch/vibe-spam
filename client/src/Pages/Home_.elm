@@ -21,7 +21,7 @@ page shared req =
         { init = init shared
         , update = update
         , view = view
-        , subscriptions = subscriptions
+        , subscriptions = \_ -> Sub.none
         }
 
 
@@ -74,15 +74,6 @@ update msg model =
 addRoom : Api.LobbyData -> Api.RoomData -> Api.LobbyData
 addRoom lobby room =
     { lobby | rooms = room :: lobby.rooms }
-
-
-
--- SUBSCRIPTIONS
-
-
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    Sub.none
 
 
 

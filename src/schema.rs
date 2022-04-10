@@ -4,6 +4,7 @@ use async_graphql::*;
 use axum::async_trait;
 use bb8::{Pool, PooledConnection};
 use bb8_redis::RedisConnectionManager;
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use uuid::Uuid;
@@ -43,17 +44,18 @@ pub struct LobbyResponse {
 
 #[derive(SimpleObject)]
 pub struct Room {
+    id: Uuid,
     title: String,
-}
-
-#[derive(Serialize, Deserialize)]
-struct RedisRoom {
-    name: String,
+    created_at: DateTime<Utc>,
 }
 
 impl From<lobby::RoomRow> for Room {
     fn from(row: lobby::RoomRow) -> Self {
-        Self { title: row.title }
+        Self {
+            id: row.id,
+            title: row.title,
+            created_at: row.created_at,
+        }
     }
 }
 

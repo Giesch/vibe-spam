@@ -20,7 +20,7 @@ import VibeSpam.Query as Query
 
 
 
--- Public
+-- PUBLIC
 
 
 type alias GraphqlData a =
@@ -48,7 +48,7 @@ createRoom toMsg =
 
 
 
--- Selections
+-- SELECTIONS
 
 
 lobbySelection : SelectionSet LobbyData Object.LobbyResponse
@@ -73,7 +73,7 @@ createRoomMutation =
 
 
 
--- Effect Helpers
+-- EFFECTS
 
 
 queryEffect :
