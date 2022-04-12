@@ -11,4 +11,4 @@ and use the 'config:' npm scripts instead.
 
 apiTarget : String
 apiTarget =
-    "http://localhost:8080"
+    "http://localhost:8000"

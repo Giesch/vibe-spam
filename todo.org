@@ -1,19 +1,18 @@
 * Now
-- [X] deploy the app!
-- [ ] add lobby to home page
-  - [ ] list open games (paging)
-  - [ ] create an open game
-    generate the game name
-    no password for now
+- [-] add lobby to home page
+  - [X] add ugly version without subscription
   - [ ] subscribe to open games
     this will require figuring out redis pubsub
     how does this interact with paging?
     does this get rid of the need for a 'list' query?
     - [ ] figure out redis pubsub
-    - [ ] figure out websocket
+    - [ ] figure out server websocket (handled by async-graphql?)
+    - [ ] figure out client websocket
 
 * Next
+- [ ] make it look good
 - [-] catch up reading z2p
+  idempotency is the only one left
 - [ ] make websocket conn reliable
   mimic how phoenix channels handle reconnect
 
