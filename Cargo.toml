@@ -7,14 +7,16 @@ edition = "2021"
 anyhow = "1.0.56"
 askama = { version = "0.11.1", features = ["with-axum"] }
 askama_axum = "0.1.0"
-async-graphql = { version = "3.0.35", features = ["chrono", "uuid"] }
+async-graphql = { version = "3.0.35", features = ["chrono", "uuid", "dataloader"] }
 async-graphql-axum = "3.0.35"
 axum = { version = "0.4.8", features = ["headers"] }
 bb8 = "0.7.1"
 bb8-redis = "0.10.1"
-chrono = "0.4.19"
+chrono = { version = "0.4.19", features = ["serde"] }
 cookie = "0.16.0"
 dotenv = "0.15.0"
+futures = "0.3.21"
+futures-core = "0.3.21"
 hyper = "0.14.17"
 mime = "0.3.16"
 secrecy = { version = "0.8.0", features = ["serde"] }
@@ -24,6 +26,7 @@ serde_json = "1.0.79"
 sqlx = { version = "0.5.11", default-features = false, features = ["runtime-tokio-rustls", "macros", "postgres", "uuid", "chrono", "migrate", "offline"] }
 thiserror = "1.0.30"
 tokio = { version = "1.17.0", features = ["full"] }
+tokio-stream = { version = "0.1.8", features = ["sync"] }
 tower-cookies = { version = "0.5.1", features = ["private"] }
 tower-http = { version = "0.2.5", features = ["fs", "trace", "cors"] }
 tracing = "0.1.32"

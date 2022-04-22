@@ -6,6 +6,7 @@
 )]
 
 pub mod app;
+pub mod pubsub;
 pub mod routes;
 pub mod schema;
 pub mod session;

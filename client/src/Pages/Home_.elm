@@ -125,10 +125,10 @@ viewCreateRoomButton =
 viewLobby : Api.GraphqlData Api.LobbyData -> Html msg
 viewLobby data =
     case data of
-        RemoteData.Loading ->
+        RemoteData.NotAsked ->
             viewLobbyLoading
 
-        RemoteData.NotAsked ->
+        RemoteData.Loading ->
             viewLobbyLoading
 
         RemoteData.Failure _ ->

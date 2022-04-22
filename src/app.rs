@@ -1,3 +1,4 @@
+use crate::pubsub::LobbyWatcher;
 use crate::routes;
 use crate::{schema, settings::Settings};
 
@@ -39,7 +40,10 @@ impl App {
             .await
             .context("failed to create redis pool")?;
 
-        let schema = schema::make(db.clone(), redis.clone());
+        let lobby_watcher = LobbyWatcher::spawn(&redis)
+            .await
+            .context("failed to spawn initial lobby watcher")?;
+        let schema = schema::new(db.clone(), redis.clone(), lobby_watcher);
         let router = routes::make_router(schema, db, redis, settings)?;
         let server = axum::Server::from_tcp(listener)?.serve(router.into_make_service());
 

@@ -184,9 +184,12 @@ dependencies = [
  "chrono",
  "fast_chemail",
  "fnv",
+ "futures-channel",
+ "futures-timer",
  "futures-util",
  "http",
  "indexmap",
+ "lru",
  "mime",
  "multer",
  "num-traits",
@@ -490,6 +493,7 @@ dependencies = [
  "libc",
  "num-integer",
  "num-traits",
+ "serde",
  "time 0.1.44",
  "winapi",
 ]
@@ -1475,6 +1479,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6389c490849ff5bc16be905ae24bc913a9c8892e19b2341dbc175e14c341c2b8"
 dependencies = [
  "cfg-if",
+]
+
+[[package]]
+name = "lru"
+version = "0.7.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "32613e41de4c47ab04970c348ca7ae7382cf116625755af070b008a15516a889"
+dependencies = [
+ "hashbrown",
 ]
 
 [[package]]
@@ -3042,6 +3055,7 @@ dependencies = [
  "futures-core",
  "pin-project-lite",
  "tokio",
+ "tokio-util 0.6.9",
 ]
 
 [[package]]
@@ -3409,6 +3423,8 @@ dependencies = [
  "chrono",
  "cookie 0.16.0",
  "dotenv",
+ "futures",
+ "futures-core",
  "hyper",
  "mime",
  "once_cell",
@@ -3421,6 +3437,7 @@ dependencies = [
  "sqlx",
  "thiserror",
  "tokio",
+ "tokio-stream",
  "tower-cookies",
  "tower-http",
  "tracing",

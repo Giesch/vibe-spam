@@ -1,16 +1,12 @@
 * Now
-- [-] add lobby to home page
-  - [X] add ugly version without subscription
-  - [ ] subscribe to open games
-    this will require figuring out redis pubsub
-    how does this interact with paging?
-    does this get rid of the need for a 'list' query?
-    - [ ] figure out redis pubsub
-    - [ ] figure out server websocket (handled by async-graphql?)
-    - [ ] figure out client websocket
+- [-] subscribe to open games
+  - [X] figure out redis pubsub
+  - [-] figure out server websocket (handled by async-graphql?)
+  - [ ] figure out client websocket
+- [ ] add paging (even if it's just a hardcoded max)
+- [ ] make it look decent
 
 * Next
-- [ ] make it look good
 - [-] catch up reading z2p
   idempotency is the only one left
 - [ ] make websocket conn reliable
@@ -19,4 +15,5 @@
 * Soon
 
 * Someday
+- [ ] NotFound page
 - [ ] make the axum fallback route in local dev point back to vite server
