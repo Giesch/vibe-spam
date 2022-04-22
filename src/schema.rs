@@ -5,10 +5,13 @@ use axum::async_trait;
 use bb8::{Pool, PooledConnection};
 use bb8_redis::RedisConnectionManager;
 use chrono::{DateTime, Utc};
+use futures::StreamExt;
 use futures_core::stream::Stream;
 use serde::Serialize;
 use sqlx::PgPool;
 use uuid::Uuid;
+
+use crate::pubsub::{self, LobbyPublisher, LobbyWatcher};
 
 mod lobby_repo;
 
@@ -41,9 +44,8 @@ impl Mutation {
         let room = lobby_repo::create_room(db, title).await?;
 
         // TODO need transaction?
-        let lobby = get_lobby(ctx.db()).await?;
-        let lobby = serde_json::to_string(&lobby)?;
-        ctx.lobby_publisher().await?.publish(lobby).await?;
+        let lobby: pubsub::LobbyMessage = get_lobby(ctx.db()).await?.into();
+        ctx.lobby_publisher().await?.publish(&lobby).await?;
 
         Ok(room.into())
     }
@@ -51,16 +53,14 @@ impl Mutation {
 
 struct Subscription;
 
-use crate::pubsub::{LobbyMessage, LobbyPublisher, LobbyWatcher};
-
 #[Subscription]
 impl Subscription {
     // TODO convert return to lobby response
     async fn lobby_updates<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,
-    ) -> impl Stream<Item = LobbyMessage> {
-        ctx.lobby_watcher().into_stream()
+    ) -> impl Stream<Item = LobbyResponse> {
+        ctx.lobby_watcher().into_stream().map(Into::into)
     }
 }
 
@@ -74,6 +74,42 @@ pub struct Room {
     id: Uuid,
     title: String,
     created_at: DateTime<Utc>,
+}
+
+impl From<pubsub::LobbyMessage> for LobbyResponse {
+    fn from(lobby: pubsub::LobbyMessage) -> Self {
+        Self {
+            rooms: lobby.rooms.into_iter().map(Into::into).collect(),
+        }
+    }
+}
+
+impl From<LobbyResponse> for pubsub::LobbyMessage {
+    fn from(lobby: LobbyResponse) -> Self {
+        Self {
+            rooms: lobby.rooms.into_iter().map(Into::into).collect(),
+        }
+    }
+}
+
+impl From<Room> for pubsub::RoomMessage {
+    fn from(room: Room) -> Self {
+        Self {
+            id: room.id,
+            title: room.title,
+            created_at: room.created_at,
+        }
+    }
+}
+
+impl From<pubsub::RoomMessage> for Room {
+    fn from(room: pubsub::RoomMessage) -> Self {
+        Self {
+            id: room.id,
+            title: room.title,
+            created_at: room.created_at,
+        }
+    }
 }
 
 impl From<lobby_repo::RoomRow> for Room {
