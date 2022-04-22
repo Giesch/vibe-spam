@@ -10,9 +10,8 @@ pub struct RoomRow {
     pub updated_at: DateTime<Utc>,
 }
 
-// TODO limit to some number (25?)
 pub async fn list_rooms(db: &PgPool) -> anyhow::Result<Vec<RoomRow>> {
-    sqlx::query_as!(RoomRow, "SELECT * FROM rooms")
+    sqlx::query_as!(RoomRow, "SELECT * FROM rooms LIMIT 25")
         .fetch_all(db)
         .await
         .context("failed to list rooms")

@@ -6,9 +6,12 @@ use chrono::{DateTime, Utc};
 use futures::StreamExt;
 use futures_core::stream::Stream;
 use serde::{Deserialize, Serialize};
+use sqlx::PgPool;
 use tokio::sync::watch::{self, Receiver};
 use tokio_stream::wrappers::WatchStream;
 use uuid::Uuid;
+
+use crate::schema::lobby;
 
 const REDIS_LOBBY_CHANNEL: &str = "vibe_spam:lobby";
 
@@ -34,14 +37,14 @@ impl LobbyWatcher {
         WatchStream::new(self.rx)
     }
 
-    pub async fn spawn(redis: &Pool<RedisConnectionManager>) -> anyhow::Result<Self> {
+    pub async fn spawn(redis: &Pool<RedisConnectionManager>, db: &PgPool) -> anyhow::Result<Self> {
         let mut pubsub = Pool::dedicated_connection(&redis)
             .await
             .context("failed to check out pubsub connection")?
             .into_pubsub();
 
-        // TODO get initial state from db
-        let (tx, rx) = watch::channel(LobbyMessage::default());
+        let lobby: LobbyMessage = lobby::get_lobby(db).await?.into();
+        let (tx, rx) = watch::channel(lobby);
 
         tokio::task::spawn(async move {
             pubsub.subscribe(REDIS_LOBBY_CHANNEL).await.unwrap();

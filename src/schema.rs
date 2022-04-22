@@ -7,12 +7,12 @@ use bb8_redis::RedisConnectionManager;
 use chrono::{DateTime, Utc};
 use futures::StreamExt;
 use futures_core::stream::Stream;
-use serde::Serialize;
 use sqlx::PgPool;
 use uuid::Uuid;
 
 use crate::pubsub::{self, LobbyPublisher, LobbyWatcher};
 
+pub mod lobby;
 mod lobby_repo;
 
 pub struct Query;
@@ -20,17 +20,10 @@ pub struct Query;
 #[Object]
 impl Query {
     async fn lobby<'ctx>(&self, ctx: &'ctx Context<'_>) -> Result<LobbyResponse> {
-        let lobby_response = get_lobby(ctx.db()).await?;
+        let lobby_response = lobby::get_lobby(ctx.db()).await?;
 
         Ok(lobby_response)
     }
-}
-
-async fn get_lobby(db: &PgPool) -> anyhow::Result<LobbyResponse> {
-    let room_rows = lobby_repo::list_rooms(db).await?;
-    let rooms: Vec<Room> = room_rows.into_iter().map(Into::into).collect();
-
-    Ok(LobbyResponse { rooms })
 }
 
 pub struct Mutation;
@@ -41,10 +34,10 @@ impl Mutation {
         let db = ctx.db();
 
         let title = Uuid::new_v4().to_string();
+
         let room = lobby_repo::create_room(db, title).await?;
 
-        // TODO need transaction?
-        let lobby: pubsub::LobbyMessage = get_lobby(ctx.db()).await?.into();
+        let lobby: pubsub::LobbyMessage = lobby::get_lobby(ctx.db()).await?.into();
         ctx.lobby_publisher().await?.publish(&lobby).await?;
 
         Ok(room.into())
@@ -55,7 +48,6 @@ struct Subscription;
 
 #[Subscription]
 impl Subscription {
-    // TODO convert return to lobby response
     async fn lobby_updates<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,
@@ -64,12 +56,12 @@ impl Subscription {
     }
 }
 
-#[derive(SimpleObject, Serialize)]
+#[derive(SimpleObject)]
 pub struct LobbyResponse {
     rooms: Vec<Room>,
 }
 
-#[derive(SimpleObject, Serialize)]
+#[derive(SimpleObject)]
 pub struct Room {
     id: Uuid,
     title: String,

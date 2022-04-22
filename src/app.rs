@@ -40,7 +40,7 @@ impl App {
             .await
             .context("failed to create redis pool")?;
 
-        let lobby_watcher = LobbyWatcher::spawn(&redis)
+        let lobby_watcher = LobbyWatcher::spawn(&redis, &db)
             .await
             .context("failed to spawn initial lobby watcher")?;
         let schema = schema::new(db.clone(), redis.clone(), lobby_watcher);
