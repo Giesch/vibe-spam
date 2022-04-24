@@ -44,7 +44,7 @@ impl Mutation {
     }
 }
 
-struct Subscription;
+pub struct Subscription;
 
 #[Subscription]
 impl Subscription {
@@ -114,14 +114,14 @@ impl From<lobby_repo::RoomRow> for Room {
     }
 }
 
-pub type VibeSpam = Schema<Query, Mutation, EmptySubscription>;
+pub type VibeSpam = Schema<Query, Mutation, Subscription>;
 
 pub fn new(
     db: PgPool,
     redis: Pool<RedisConnectionManager>,
     lobby_watcher: LobbyWatcher,
 ) -> VibeSpam {
-    Schema::build(Query, Mutation, EmptySubscription)
+    Schema::build(Query, Mutation, Subscription)
         .data(db)
         .data(redis)
         .data(lobby_watcher)

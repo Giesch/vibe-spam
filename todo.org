@@ -2,6 +2,7 @@
 - [-] subscribe to open games
   - [X] figure out redis pubsub
   - [-] figure out server websocket (handled by async-graphql?)
+    - [ ] deploy it
   - [ ] figure out client websocket
 - [ ] add paging (even if it's just a hardcoded max)
 - [ ] make it look decent
@@ -13,8 +14,13 @@
   mimic how phoenix channels handle reconnect
 - [ ] remove expect calls from pubsub
   publish decode errors to redis? log and do nothing?
+- [ ] remove direct repo references from gql schema
+  separate domain module
+  move pubsub stuff there as well
 
 * Soon
+- [ ] test subscriptions
+  this will need multiple test gql clients
 
 * Someday
 - [ ] NotFound page
