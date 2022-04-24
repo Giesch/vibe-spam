@@ -38,23 +38,29 @@ impl LobbyWatcher {
     }
 
     pub async fn spawn(redis: &Pool<RedisConnectionManager>, db: &PgPool) -> anyhow::Result<Self> {
-        let mut pubsub = Pool::dedicated_connection(&redis)
+        let mut pubsub = Pool::dedicated_connection(redis)
             .await
             .context("failed to check out pubsub connection")?
             .into_pubsub();
 
-        let lobby: LobbyMessage = lobby::get_lobby(db).await?.into();
+        let lobby: LobbyMessage = lobby::fetch(db).await?.into();
         let (tx, rx) = watch::channel(lobby);
 
         tokio::task::spawn(async move {
-            pubsub.subscribe(REDIS_LOBBY_CHANNEL).await.unwrap();
+            pubsub
+                .subscribe(REDIS_LOBBY_CHANNEL)
+                .await
+                .expect("failed to subscribe to lobby channel");
 
             while let Some(result) = pubsub.on_message().next().await {
-                let payload = result.get_payload::<String>().unwrap();
+                let payload = result
+                    .get_payload::<String>()
+                    .expect("failed to get string payload");
+
                 let lobby =
                     serde_json::from_str(&payload).expect("failed to parse lobby json from redis");
 
-                tx.send(lobby).unwrap();
+                tx.send(lobby).expect("failed to send lobby");
             }
         });
 

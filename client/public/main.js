@@ -24,23 +24,18 @@ export async function initWithFlags() {
 async function getFlagsForEnv() {
   if (import.meta.env.MODE === "development") {
     const response = await fetch("/api/flags");
+
     return response.json();
   } else {
-    return getFlagsFromHtml();
-  }
-}
+    const flagsDiv = document.getElementById(FLAGS_DIV_ID);
+    if (!flagsDiv) {
+      return {};
+    }
 
-/**
- * Gets the server-rendered flags json and parses it.
- *
- * @return {object} Elm app flags
- */
-function getFlagsFromHtml() {
-  const flagsDiv = document.getElementById(FLAGS_DIV_ID);
-
-  try {
-    return JSON.parse(flagsDiv.innerText);
-  } catch {
-    return {};
+    try {
+      return JSON.parse(flagsDiv.innerText);
+    } catch {
+      return {};
+    }
   }
 }

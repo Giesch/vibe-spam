@@ -20,7 +20,7 @@ pub struct Query;
 #[Object]
 impl Query {
     async fn lobby<'ctx>(&self, ctx: &'ctx Context<'_>) -> Result<LobbyResponse> {
-        let lobby_response = lobby::get_lobby(ctx.db()).await?;
+        let lobby_response = lobby::fetch(ctx.db()).await?;
 
         Ok(lobby_response)
     }
@@ -37,7 +37,7 @@ impl Mutation {
 
         let room = lobby_repo::create_room(db, title).await?;
 
-        let lobby: pubsub::LobbyMessage = lobby::get_lobby(ctx.db()).await?.into();
+        let lobby: pubsub::LobbyMessage = lobby::fetch(ctx.db()).await?.into();
         ctx.lobby_publisher().await?.publish(&lobby).await?;
 
         Ok(room.into())

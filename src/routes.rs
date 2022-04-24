@@ -1,6 +1,7 @@
 use crate::schema;
 use crate::settings::Settings;
 
+use async_graphql_axum::GraphQLSubscription;
 use axum::extract::Extension;
 use axum::routing::{get, post};
 use axum::Router;
@@ -34,6 +35,7 @@ pub fn make_router(
         .route("/api/flags", get(static_files::get_flags))
         .route(graphql::ROUTE, get(graphql::playground))
         .route(graphql::ROUTE, post(graphql::handler))
+        .route(graphql::WS_ROUTE, GraphQLSubscription::new(schema.clone()))
         .fallback(get(static_files::index_html))
         .layer(cors::layer())
         .layer(TraceLayer::new_for_http())

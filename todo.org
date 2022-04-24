@@ -11,6 +11,8 @@
   idempotency is the only one left
 - [ ] make websocket conn reliable
   mimic how phoenix channels handle reconnect
+- [ ] remove expect calls from pubsub
+  publish decode errors to redis? log and do nothing?
 
 * Soon
 
