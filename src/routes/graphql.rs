@@ -6,6 +6,7 @@ use axum::extract::Extension;
 use axum::response::{Html, IntoResponse};
 
 pub const ROUTE: &str = "/api/graphql";
+pub const WS_ROUTE: &str = "/api/graphql/ws";
 
 pub async fn handler(
     schema: Extension<VibeSpam>,
@@ -16,6 +17,6 @@ pub async fn handler(
 }
 
 pub async fn playground() -> impl IntoResponse {
-    let playground_config = GraphQLPlaygroundConfig::new(ROUTE);
+    let playground_config = GraphQLPlaygroundConfig::new(ROUTE).subscription_endpoint(WS_ROUTE);
     Html(playground_source(playground_config))
 }

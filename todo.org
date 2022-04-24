@@ -1,23 +1,27 @@
 * Now
-- [X] deploy the app!
-- [ ] add lobby to home page
-  - [ ] list open games (paging)
-  - [ ] create an open game
-    generate the game name
-    no password for now
-  - [ ] subscribe to open games
-    this will require figuring out redis pubsub
-    how does this interact with paging?
-    does this get rid of the need for a 'list' query?
-    - [ ] figure out redis pubsub
-    - [ ] figure out websocket
+- [-] subscribe to open games
+  - [X] figure out redis pubsub
+  - [-] figure out server websocket (handled by async-graphql?)
+    - [ ] deploy it
+  - [ ] figure out client websocket
+- [ ] add paging (even if it's just a hardcoded max)
+- [ ] make it look decent
 
 * Next
 - [-] catch up reading z2p
+  idempotency is the only one left
 - [ ] make websocket conn reliable
   mimic how phoenix channels handle reconnect
+- [ ] remove expect calls from pubsub
+  publish decode errors to redis? log and do nothing?
+- [ ] remove direct repo references from gql schema
+  separate domain module
+  move pubsub stuff there as well
 
 * Soon
+- [ ] test subscriptions
+  this will need multiple test gql clients
 
 * Someday
+- [ ] NotFound page
 - [ ] make the axum fallback route in local dev point back to vite server

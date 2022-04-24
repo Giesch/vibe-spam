@@ -38,25 +38,7 @@
     },
     "query": "INSERT INTO rooms (title) VALUES ($1) RETURNING *"
   },
-  "70d501bdc85b04fc40fa92c599432fc63329dd6e35496a0970c77f6c8698ef30": {
-    "describe": {
-      "columns": [
-        {
-          "name": "one",
-          "ordinal": 0,
-          "type_info": "Int4"
-        }
-      ],
-      "nullable": [
-        null
-      ],
-      "parameters": {
-        "Left": []
-      }
-    },
-    "query": "SELECT 1 AS one"
-  },
-  "dfb3b8cf5dc4713879965564fd6d0539f1c01eadcbc8a862e87bc1d15448136c": {
+  "0c30e47c687fa8472ded0f17eecbda2237699ce6bbb3ae2c677f679c2dfa4eb1": {
     "describe": {
       "columns": [
         {
@@ -90,6 +72,24 @@
         "Left": []
       }
     },
-    "query": "SELECT * FROM rooms"
+    "query": "SELECT * FROM rooms LIMIT 25"
+  },
+  "70d501bdc85b04fc40fa92c599432fc63329dd6e35496a0970c77f6c8698ef30": {
+    "describe": {
+      "columns": [
+        {
+          "name": "one",
+          "ordinal": 0,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        null
+      ],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "SELECT 1 AS one"
   }
 }

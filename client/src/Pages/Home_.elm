@@ -1,11 +1,12 @@
 module Pages.Home_ exposing (Model, Msg, page)
 
 import Api
-import Components.Header as Header
+import Css.Transitions exposing (offset)
 import Effect exposing (Effect)
 import Gen.Params.Home_ exposing (Params)
 import Html.Styled as Html exposing (..)
 import Html.Styled.Attributes as Attr exposing (css)
+import Html.Styled.Events as Events
 import Page
 import RemoteData exposing (RemoteData)
 import Request
@@ -77,31 +78,7 @@ addRoom lobby room =
 
 
 
--- VIEW
-
-
-view : Model -> View Msg
-view model =
-    { title = "home"
-    , body = [ Header.view, viewSession model.session ]
-    }
-
-
-viewSession : Maybe Session -> Html msg
-viewSession maybeSession =
-    case maybeSession of
-        Just session ->
-            div
-                [ css [ Tw.flex, Tw.flex_col ] ]
-                [ div [] [ text <| Session.id session ]
-                ]
-
-        Nothing ->
-            text "no session"
-
-
-
--- Effects
+-- EFFECTS
 
 
 fetchLobby : Effect Msg
@@ -112,3 +89,66 @@ fetchLobby =
 createRoom : Effect Msg
 createRoom =
     Api.createRoom GotCreatedRoom
+
+
+view : Model -> View Msg
+view model =
+    { title = "home"
+    , body =
+        [ viewSession model.session
+        , viewCreateRoomButton
+        , viewLobby model.lobby
+        ]
+    }
+
+
+viewSession : Maybe Session -> Html msg
+viewSession maybeSession =
+    case maybeSession of
+        Just session ->
+            div
+                [ css [ Tw.flex, Tw.flex_col ] ]
+                [ div [] [ text <| "session: " ++ Session.id session ]
+                ]
+
+        Nothing ->
+            text "no session"
+
+
+viewCreateRoomButton : Html Msg
+viewCreateRoomButton =
+    button
+        [ Events.onClick CreateRoom ]
+        [ text "Create Room" ]
+
+
+viewLobby : Api.GraphqlData Api.LobbyData -> Html msg
+viewLobby data =
+    case data of
+        RemoteData.NotAsked ->
+            viewLobbyLoading
+
+        RemoteData.Loading ->
+            viewLobbyLoading
+
+        RemoteData.Failure _ ->
+            text "oops"
+
+        RemoteData.Success lobby ->
+            if List.isEmpty lobby.rooms then
+                div [] [ text "empty lobby" ]
+
+            else
+                div [] (List.map viewRoomRow lobby.rooms)
+
+
+viewLobbyLoading : Html msg
+viewLobbyLoading =
+    text "loading..."
+
+
+viewRoomRow : Api.RoomData -> Html msg
+viewRoomRow room =
+    div []
+        [ text ("room: " ++ room.title)
+        ]

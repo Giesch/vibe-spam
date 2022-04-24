@@ -84,10 +84,7 @@ queryEffect toMsg selection =
     selection
         |> Graphql.Http.queryRequest endpoint
         |> Graphql.Http.send
-            (Graphql.Http.discardParsedErrorData
-                >> RemoteData.fromResult
-                >> toMsg
-            )
+            (Graphql.Http.discardParsedErrorData >> RemoteData.fromResult >> toMsg)
         |> Effect.fromCmd
 
 
@@ -99,10 +96,7 @@ mutationEffect toMsg selection =
     selection
         |> Graphql.Http.mutationRequest endpoint
         |> Graphql.Http.send
-            (Graphql.Http.discardParsedErrorData
-                >> RemoteData.fromResult
-                >> toMsg
-            )
+            (Graphql.Http.discardParsedErrorData >> RemoteData.fromResult >> toMsg)
         |> Effect.fromCmd
 
 
