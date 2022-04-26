@@ -110,6 +110,7 @@ jobs:
         run: |
           mkdir -p $APP_DIST/assets
           touch $APP_DIST/assets/index.js
+          touch $APP_DIST/assets/vendor.js
 
       - name: Cargo Test
         uses: actions-rs/cargo@v1
