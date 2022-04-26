@@ -6,7 +6,6 @@
 - [ ] remove expect calls from pubsub
   the initial subscribe expect should stay
   decode errors - at least log, maybe publish to watcher
-  tracing
 
 - [ ] unsubscribe from lobby on leaving lobby
   this might require some special link handler in Main.elm
@@ -19,9 +18,6 @@
 - [ ] set up elm review
   - [ ] disable elm analyze emacs setup
   - [ ] add elm review emacs setup (or switch to intellij?)
-- [ ] remove direct repo references from gql schema
-  separate domain module
-  move pubsub stuff there as well
 
 * Someday
 - [ ] make the axum fallback route in local dev point back to vite server

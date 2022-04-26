@@ -32,13 +32,9 @@ pub struct Mutation;
 impl Mutation {
     async fn create_room<'ctx>(&self, ctx: &'ctx Context<'_>) -> Result<Room> {
         let db = ctx.db();
+        let mut lobby_publisher = ctx.lobby_publisher().await?;
 
-        let title = Uuid::new_v4().to_string();
-
-        let room = lobby_repo::create_room(db, title).await?;
-
-        let lobby: pubsub::LobbyMessage = lobby::fetch(ctx.db()).await?.into();
-        ctx.lobby_publisher().await?.publish(&lobby).await?;
+        let room = lobby::create_room(db, &mut lobby_publisher).await?;
 
         Ok(room.into())
     }

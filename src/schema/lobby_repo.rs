@@ -10,6 +10,7 @@ pub struct RoomRow {
     pub updated_at: DateTime<Utc>,
 }
 
+#[tracing::instrument(name = "list rooms query")]
 pub async fn list_rooms(db: &PgPool) -> anyhow::Result<Vec<RoomRow>> {
     sqlx::query_as!(
         RoomRow,
@@ -25,6 +26,7 @@ pub async fn list_rooms(db: &PgPool) -> anyhow::Result<Vec<RoomRow>> {
     .context("failed to list rooms")
 }
 
+#[tracing::instrument(name = "create room query")]
 #[allow(clippy::panic)] // this is coming from within the sqlx macro
 pub async fn create_room(db: &PgPool, title: String) -> anyhow::Result<RoomRow> {
     sqlx::query_as!(
