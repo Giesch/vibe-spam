@@ -3,17 +3,17 @@ module Api exposing
     , LobbyData
     , RoomData
     , createRoom
-    , fetchLobby
     )
 
 import Config
 import Effect exposing (Effect)
 import Graphql.Http
-import Graphql.Operation exposing (RootMutation, RootQuery)
+import Graphql.Operation exposing (RootMutation, RootQuery, RootSubscription)
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet)
+import Json.Decode exposing (Decoder)
 import RemoteData exposing (RemoteData)
 import VibeSpam.Mutation as Mutation
-import VibeSpam.Object as Object
+import VibeSpam.Object as Object exposing (LobbyResponse)
 import VibeSpam.Object.LobbyResponse as LobbyResponse
 import VibeSpam.Object.Room as Room
 import VibeSpam.Query as Query
@@ -37,11 +37,6 @@ type alias RoomData =
     }
 
 
-fetchLobby : (GraphqlData LobbyData -> msg) -> Effect msg
-fetchLobby toMsg =
-    queryEffect toMsg lobbyQuery
-
-
 createRoom : (GraphqlData RoomData -> msg) -> Effect msg
 createRoom toMsg =
     mutationEffect toMsg createRoomMutation
@@ -51,25 +46,14 @@ createRoom toMsg =
 -- SELECTIONS
 
 
-lobbySelection : SelectionSet LobbyData Object.LobbyResponse
-lobbySelection =
-    SelectionSet.map LobbyData
-        (LobbyResponse.rooms roomSelection)
+createRoomMutation : SelectionSet RoomData RootMutation
+createRoomMutation =
+    Mutation.createRoom roomSelection
 
 
 roomSelection : SelectionSet RoomData Object.Room
 roomSelection =
     SelectionSet.map RoomData Room.title
-
-
-lobbyQuery : SelectionSet LobbyData RootQuery
-lobbyQuery =
-    Query.lobby lobbySelection
-
-
-createRoomMutation : SelectionSet RoomData RootMutation
-createRoomMutation =
-    Mutation.createRoom roomSelection
 
 
 

@@ -11,17 +11,28 @@ pub struct RoomRow {
 }
 
 pub async fn list_rooms(db: &PgPool) -> anyhow::Result<Vec<RoomRow>> {
-    sqlx::query_as!(RoomRow, "SELECT * FROM rooms LIMIT 25")
-        .fetch_all(db)
-        .await
-        .context("failed to list rooms")
+    sqlx::query_as!(
+        RoomRow,
+        r#"
+            SELECT *
+            FROM rooms
+            ORDER BY created_at DESC
+            LIMIT 25
+        "#
+    )
+    .fetch_all(db)
+    .await
+    .context("failed to list rooms")
 }
 
 #[allow(clippy::panic)] // this is coming from within the sqlx macro
 pub async fn create_room(db: &PgPool, title: String) -> anyhow::Result<RoomRow> {
     sqlx::query_as!(
         RoomRow,
-        "INSERT INTO rooms (title) VALUES ($1) RETURNING *",
+        r#"
+            INSERT INTO rooms (title)
+            VALUES ($1) RETURNING *
+        "#,
         title
     )
     .fetch_one(db)

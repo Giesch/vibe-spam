@@ -30,6 +30,9 @@
     "vite-plugin-elm": "2.4.1"
   },
   "dependencies": {
-    "autoprefixer": "^10.4.4"
+    "autoprefixer": "^10.4.4",
+    "graphql-ws": "^5.7.0",
+    "urql": "^2.2.0",
+    "wonka": "^4.0.15"
   }
 }
