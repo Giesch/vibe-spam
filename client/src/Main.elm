@@ -2,11 +2,12 @@ module Main exposing (main)
 
 import Browser
 import Browser.Navigation as Nav exposing (Key)
-import Effect
+import Effect exposing (Effect)
 import Gen.Model
 import Gen.Pages as Pages
 import Gen.Route as Route
 import Json.Decode as Decode
+import Ports
 import Request
 import Shared
 import Url exposing (Url)
@@ -49,7 +50,7 @@ init flags url key =
     ( Model url key shared page
     , Cmd.batch
         [ Cmd.map Shared sharedCmd
-        , Effect.toCmd ( Shared, Page ) effect
+        , effectToCmd effect
         ]
     )
 
@@ -72,24 +73,32 @@ update msg model =
             let
                 stringUrl =
                     Url.toString url
-            in
-            if isOutgoingOauthPath stringUrl then
-                ( model, Nav.load stringUrl )
 
-            else
-                ( model, Nav.pushUrl model.key stringUrl )
+                navCmd =
+                    if isOutgoingOauthPath stringUrl then
+                        Nav.load stringUrl
+
+                    else
+                        Nav.pushUrl model.key stringUrl
+            in
+            ( model
+            , Cmd.batch [ navCmd, graphqlUnsubscribe ]
+            )
 
         ClickedLink (Browser.External url) ->
-            ( model, Nav.load url )
+            ( model
+            , Cmd.batch [ Nav.load url, graphqlUnsubscribe ]
+            )
 
         ChangedUrl url ->
             if url.path /= model.url.path then
                 let
+                    -- TODO gql unsubscribe before this
                     ( page, effect ) =
                         Pages.init (Route.fromUrl url) model.shared url model.key
                 in
                 ( { model | url = url, page = page }
-                , Effect.toCmd ( Shared, Page ) effect
+                , effectToCmd effect
                 )
 
             else
@@ -100,6 +109,7 @@ update msg model =
                 ( shared, sharedCmd ) =
                     Shared.update (Request.create () model.url model.key) sharedMsg model.shared
 
+                -- TODO gql unsubscribe before this
                 ( page, effect ) =
                     Pages.init (Route.fromUrl model.url) shared model.url model.key
             in
@@ -107,7 +117,7 @@ update msg model =
                 ( { model | shared = shared, page = page }
                 , Cmd.batch
                     [ Cmd.map Shared sharedCmd
-                    , Effect.toCmd ( Shared, Page ) effect
+                    , effectToCmd effect
                     ]
                 )
 
@@ -122,8 +132,18 @@ update msg model =
                     Pages.update pageMsg model.page model.shared model.url model.key
             in
             ( { model | page = page }
-            , Effect.toCmd ( Shared, Page ) effect
+            , effectToCmd effect
             )
+
+
+graphqlUnsubscribe : Cmd Msg
+graphqlUnsubscribe =
+    effectToCmd Ports.lobbyUnsubscribe
+
+
+effectToCmd : Effect Pages.Msg -> Cmd Msg
+effectToCmd effect =
+    Effect.toCmd ( Shared, Page ) effect
 
 
 isOutgoingOauthPath : String -> Bool

@@ -1,28 +1,33 @@
 * Now
-- [ ] make it look decent
-- [ ] add chat room page
+- [ ] unsubscribe from lobby on leaving lobby
+  this might require some special link handler in Main.elm
+  need an 'unsubscribe from all' toJs port msg?
+  - [ ] call unsubscribe on all page transitions
+  - [ ] manually test this
 
 * Next
 - [ ] remove expect calls from pubsub
   the initial subscribe expect should stay
   decode errors - at least log, maybe publish to watcher
 
-- [ ] unsubscribe from lobby on leaving lobby
-  this might require some special link handler in Main.elm
-  need an 'unsubscribe from all' toJs port msg?
-  - could just call that on all page transitions
-
-* Soon
 - [ ] tests for subscriptions
   this will need multiple test gql clients
+
+- [ ] make home/lobby page look decent
+
+* Soon
+- [ ] add chat room page
+  - [ ] plan layout/visuals first?
+- [ ] change unsubscribe port msg to unsubscribe from all
+
+* Someday
 - [ ] set up elm review
   - [ ] disable elm analyze emacs setup
   - [ ] add elm review emacs setup (or switch to intellij?)
-
-* Someday
 - [ ] make the axum fallback route in local dev point back to vite server
 - [ ] use elm-ts-interop for ports
   convert main.js to ts? does vite make this easy?
+  yeah, it just strips out types - need to set up a tsc step in ci
 - [ ] see if it's possible to switch from urql to urql-core
 - [ ] optimistic updates?
 - [ ] disconnect/reconnect handling for subscriptions
@@ -31,5 +36,5 @@
 - [ ] NotFound page
 
 * Other
-- [-] catch up reading z2p
+- [ ] catch up reading z2p
   idempotency is the only one left
