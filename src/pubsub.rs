@@ -37,6 +37,7 @@ impl LobbyWatcher {
         WatchStream::new(self.rx)
     }
 
+    #[tracing::instrument(name = "spawn lobby watcher")]
     pub async fn spawn(redis: &Pool<RedisConnectionManager>, db: &PgPool) -> anyhow::Result<Self> {
         let mut pubsub = Pool::dedicated_connection(redis)
             .await
@@ -77,6 +78,7 @@ impl<'a> LobbyPublisher<'a> {
         LobbyPublisher { redis }
     }
 
+    #[tracing::instrument(name = "lobby publish", skip(self))]
     pub async fn publish(&mut self, lobby: &LobbyMessage) -> anyhow::Result<()> {
         let json = serde_json::to_string(&lobby)?;
 

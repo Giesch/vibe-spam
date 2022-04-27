@@ -1,27 +1,35 @@
 * Now
-- [-] subscribe to open games
-  - [X] figure out redis pubsub
-  - [-] figure out server websocket (handled by async-graphql?)
-    - [ ] deploy it
-  - [ ] figure out client websocket
-- [ ] add paging (even if it's just a hardcoded max)
 - [ ] make it look decent
+- [ ] add chat room page
 
 * Next
-- [-] catch up reading z2p
-  idempotency is the only one left
-- [ ] make websocket conn reliable
-  mimic how phoenix channels handle reconnect
 - [ ] remove expect calls from pubsub
-  publish decode errors to redis? log and do nothing?
-- [ ] remove direct repo references from gql schema
-  separate domain module
-  move pubsub stuff there as well
+  the initial subscribe expect should stay
+  decode errors - at least log, maybe publish to watcher
+
+- [ ] unsubscribe from lobby on leaving lobby
+  this might require some special link handler in Main.elm
+  need an 'unsubscribe from all' toJs port msg?
+  - could just call that on all page transitions
 
 * Soon
-- [ ] test subscriptions
+- [ ] tests for subscriptions
   this will need multiple test gql clients
+- [ ] set up elm review
+  - [ ] disable elm analyze emacs setup
+  - [ ] add elm review emacs setup (or switch to intellij?)
 
 * Someday
-- [ ] NotFound page
 - [ ] make the axum fallback route in local dev point back to vite server
+- [ ] use elm-ts-interop for ports
+  convert main.js to ts? does vite make this easy?
+- [ ] see if it's possible to switch from urql to urql-core
+- [ ] optimistic updates?
+- [ ] disconnect/reconnect handling for subscriptions
+  - mimic phoenix channels - exponential backoff
+- [ ] tracing with honeycomb
+- [ ] NotFound page
+
+* Other
+- [-] catch up reading z2p
+  idempotency is the only one left

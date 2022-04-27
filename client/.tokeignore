@@ -1,0 +1,4 @@
+package-lock.json
+.elm-graphql
+.elm-spa
+.elm-tailwind-modules

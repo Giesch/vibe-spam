@@ -5,10 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     {# NOTE
-    This is based on the compiled output from vite/rollup in /client/public/dist/index.html.
-    It should be kept in sync with the html structure in /client/public/index.html.
+      This is based on the compiled output from vite/rollup
+      in /client/public/dist/index.html.
+      It should be kept in sync with the html structure in /client/public/index.html.
     #}
     <script type="module" crossorigin src="/assets/{{ index_js }}"></script>
+    <link rel="modulepreload" href="/assets/{{ vendor_js }}">
   </head>
 
   <body>

@@ -1,13 +1,14 @@
 module Pages.Home_ exposing (Model, Msg, page)
 
 import Api
-import Css.Transitions exposing (offset)
 import Effect exposing (Effect)
 import Gen.Params.Home_ exposing (Params)
 import Html.Styled as Html exposing (..)
 import Html.Styled.Attributes as Attr exposing (css)
 import Html.Styled.Events as Events
+import Json.Decode as Decode exposing (Decoder)
 import Page
+import Ports
 import RemoteData exposing (RemoteData)
 import Request
 import Shared
@@ -22,7 +23,7 @@ page shared req =
         { init = init shared
         , update = update
         , view = view
-        , subscriptions = \_ -> Sub.none
+        , subscriptions = subscriptions
         }
 
 
@@ -41,7 +42,7 @@ init shared =
     ( { session = shared.session
       , lobby = RemoteData.NotAsked
       }
-    , fetchLobby
+    , Ports.lobbySubscribe
     )
 
 
@@ -53,6 +54,7 @@ type Msg
     = GotLobby (Api.GraphqlData Api.LobbyData)
     | GotCreatedRoom (Api.GraphqlData Api.RoomData)
     | CreateRoom
+    | FromJs (Result Decode.Error Ports.FromJsMsg)
 
 
 update : Msg -> Model -> ( Model, Effect Msg )
@@ -61,34 +63,41 @@ update msg model =
         GotLobby lobby ->
             ( { model | lobby = lobby }, Effect.none )
 
-        GotCreatedRoom room ->
-            let
-                newLobby =
-                    RemoteData.map2 addRoom model.lobby room
-            in
-            ( { model | lobby = newLobby }, Effect.none )
+        GotCreatedRoom _ ->
+            ( model, Effect.none )
 
         CreateRoom ->
             ( model, createRoom )
 
+        FromJs (Ok (Ports.LobbyUpdated lobbyData)) ->
+            ( { model | lobby = RemoteData.Success lobbyData }
+            , Effect.none
+            )
 
-addRoom : Api.LobbyData -> Api.RoomData -> Api.LobbyData
-addRoom lobby room =
-    { lobby | rooms = room :: lobby.rooms }
+        FromJs (Err decodeError) ->
+            ( model, Effect.none )
 
 
 
 -- EFFECTS
 
 
-fetchLobby : Effect Msg
-fetchLobby =
-    Api.fetchLobby GotLobby
-
-
 createRoom : Effect Msg
 createRoom =
     Api.createRoom GotCreatedRoom
+
+
+
+-- SUBSCRIPTIONS
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Ports.subscription FromJs
+
+
+
+-- VIEW
 
 
 view : Model -> View Msg
@@ -108,7 +117,9 @@ viewSession maybeSession =
         Just session ->
             div
                 [ css [ Tw.flex, Tw.flex_col ] ]
-                [ div [] [ text <| "session: " ++ Session.id session ]
+                [ div []
+                    [ text <| "session: " ++ Session.id session
+                    ]
                 ]
 
         Nothing ->
@@ -144,11 +155,9 @@ viewLobby data =
 
 viewLobbyLoading : Html msg
 viewLobbyLoading =
-    text "loading..."
+    div [] <| [ text "loading..." ]
 
 
 viewRoomRow : Api.RoomData -> Html msg
 viewRoomRow room =
-    div []
-        [ text ("room: " ++ room.title)
-        ]
+    div [] [ text ("room: " ++ room.title) ]

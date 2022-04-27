@@ -71,39 +71,38 @@ pub struct ElmSessionJson {
 #[template(path = "index.html")]
 struct IndexTemplate {
     index_js: String,
+    vendor_js: String,
     flags: String,
 }
 
 impl IndexTemplate {
     pub fn new(assets: &Assets, flags_json: ElmFlagsJson) -> Self {
-        let index_js = assets.index_js.to_string();
+        let index_js = assets.index_js.clone();
+        let vendor_js = assets.vendor_js.clone();
 
         // This serialize can fail only if something fundementally wrong is
         // included in elm flags; ie a mutex, or a map with number keys
         let flags = serde_json::to_string(&flags_json).expect("failed to serialize elm flags");
 
-        Self { index_js, flags }
+        Self {
+            index_js,
+            vendor_js,
+            flags,
+        }
     }
 }
 
 #[derive(Debug)]
 pub struct Assets {
+    /// The name of the compiled index.js file
     index_js: String,
-}
-
-impl Assets {
-    fn new(index_js: String) -> Self {
-        Assets { index_js }
-    }
-}
-
-pub fn list_assets_dir(dist: &str) -> anyhow::Result<Assets> {
-    get_hashed_index_js(dist).map(Assets::new)
+    /// The name of the compiled vendor.js file
+    vendor_js: String,
 }
 
 // for use during startup in prod
-// gets the name of the index.js file, which will have a hash in it
-fn get_hashed_index_js(dist: &str) -> anyhow::Result<String> {
+// gets the name of the compiled js files, which will have hashes in them
+pub fn list_assets_dir(dist: &str) -> anyhow::Result<Assets> {
     let assets_dir = format!("{}/assets", dist);
     let assets_dir = fs::read_dir(assets_dir).context("failed to read assets dir")?;
 
@@ -118,10 +117,23 @@ fn get_hashed_index_js(dist: &str) -> anyhow::Result<String> {
         assets_files.push(entry);
     }
 
-    let index_js = match assets_files.as_slice() {
-        [index_js] if index_js.starts_with("index.") && index_js.ends_with(".js") => index_js,
+    assets_files.sort();
+
+    let assets = match assets_files.as_slice() {
+        [index_js, vendor_js] if is_index_js(index_js) && is_vendor_js(vendor_js) => Assets {
+            index_js: index_js.to_string(),
+            vendor_js: vendor_js.to_string(),
+        },
         other => anyhow::bail!("unexpected assets files: {other:?}"),
     };
 
-    Ok(index_js.to_string())
+    Ok(assets)
+}
+
+fn is_index_js(s: &str) -> bool {
+    s.starts_with("index.") && s.ends_with(".js")
+}
+
+fn is_vendor_js(s: &str) -> bool {
+    s.starts_with("vendor") && s.ends_with(".js")
 }

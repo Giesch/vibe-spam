@@ -20,7 +20,9 @@ pub struct Query;
 #[Object]
 impl Query {
     async fn lobby<'ctx>(&self, ctx: &'ctx Context<'_>) -> Result<LobbyResponse> {
-        let lobby_response = lobby::fetch(ctx.db()).await?;
+        let db = ctx.db();
+
+        let lobby_response = lobby::fetch(db).await?;
 
         Ok(lobby_response)
     }
@@ -32,15 +34,11 @@ pub struct Mutation;
 impl Mutation {
     async fn create_room<'ctx>(&self, ctx: &'ctx Context<'_>) -> Result<Room> {
         let db = ctx.db();
+        let mut lobby_publisher = ctx.lobby_publisher().await?;
 
-        let title = Uuid::new_v4().to_string();
+        let room = lobby::create_room(db, &mut lobby_publisher).await?;
 
-        let room = lobby_repo::create_room(db, title).await?;
-
-        let lobby: pubsub::LobbyMessage = lobby::fetch(ctx.db()).await?.into();
-        ctx.lobby_publisher().await?.publish(&lobby).await?;
-
-        Ok(room.into())
+        Ok(room)
     }
 }
 
