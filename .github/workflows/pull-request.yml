@@ -243,6 +243,7 @@ jobs:
           cache-dependency-path: client/package-lock.json
 
       - name: Add elm-review, elm and elm-format to path
+        working-directory: client
         run: npm bin >> $GITHUB_PATH
 
       - run: npm run build:github
