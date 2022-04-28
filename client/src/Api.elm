@@ -8,15 +8,12 @@ module Api exposing
 import Config
 import Effect exposing (Effect)
 import Graphql.Http
-import Graphql.Operation exposing (RootMutation, RootQuery, RootSubscription)
+import Graphql.Operation exposing (RootMutation, RootQuery)
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet)
-import Json.Decode exposing (Decoder)
 import RemoteData exposing (RemoteData)
 import VibeSpam.Mutation as Mutation
-import VibeSpam.Object as Object exposing (LobbyResponse)
-import VibeSpam.Object.LobbyResponse as LobbyResponse
+import VibeSpam.Object as Object
 import VibeSpam.Object.Room as Room
-import VibeSpam.Query as Query
 
 
 
