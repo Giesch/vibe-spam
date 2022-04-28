@@ -229,6 +229,26 @@ jobs:
       - run: npx elm-format --validate src
         working-directory: client
 
+  elm-review:
+    name: Elm Review
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+          cache: "npm"
+      - name: Add elm-review, elm and elm-format to path
+        run: npm bin >> $GITHUB_PATH
+      - uses: sparksp/elm-review-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          working-directory: client
+          # elm_review: elm-review
+          # elm_format: elm-format
+          # elm_compiler: elm
+
   docker-build:
     name: Docker Build
     runs-on: ubuntu-latest
