@@ -55,5 +55,5 @@ then, in another shell in this directory:
 DATABASE_URL="postgres://postgres:<PASSWORD_HERE>@localhost:5432" sqlx migrate run
 ```
 
-for direct psql to prod: fly pg connect --app rogue-wizard-db
-for direct shell to prod: fly ssh console --app rogue-wizard
+for direct psql to prod: fly pg connect --app vibe-spam-postgres
+for direct shell to prod: fly ssh console --app vibe-spam

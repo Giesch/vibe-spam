@@ -31,7 +31,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: rogue_wizard
+          POSTGRES_DB: vibe_spam
         ports:
           - 5432:5432
         options: >-
@@ -53,7 +53,7 @@ jobs:
           echo "APP_HOST=localhost" >> $GITHUB_ENV
           echo "APP_PORT=8080" >> $GITHUB_ENV
           echo "APP_URL=http://localhost:8000" >> $GITHUB_ENV
-          echo "DATABASE_URL=postgres://postgres:postgres@localhost:5432/rogue_wizard" >> $GITHUB_ENV
+          echo "DATABASE_URL=postgres://postgres:postgres@localhost:5432/vibe_spam" >> $GITHUB_ENV
           echo "REDIS_URL=redis://localhost:6379" >> $GITHUB_ENV
           echo "APP_SIGNING_SECRET=DEZ+TXqTNjb+qQu05MibWt4151A9wc1ZynbWv3dU8sBE+39IPJz9ZMDfQplUzrVLywDs9oNxboZzPmK892vx2Q==" >> $GITHUB_ENV
 
@@ -127,7 +127,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: rogue_wizard
+          POSTGRES_DB: vibe_spam
         ports:
           - 5432:5432
         options: >-
@@ -149,7 +149,7 @@ jobs:
           echo "APP_HOST=localhost" >> $GITHUB_ENV
           echo "APP_PORT=8080" >> $GITHUB_ENV
           echo "APP_URL=http://localhost:8000" >> $GITHUB_ENV
-          echo "DATABASE_URL=postgres://postgres:postgres@localhost:5432/rogue_wizard" >> $GITHUB_ENV
+          echo "DATABASE_URL=postgres://postgres:postgres@localhost:5432/vibe_spam" >> $GITHUB_ENV
           echo "REDIS_URL=redis://localhost:6379" >> $GITHUB_ENV
           echo "APP_SIGNING_SECRET=DEZ+TXqTNjb+qQu05MibWt4151A9wc1ZynbWv3dU8sBE+39IPJz9ZMDfQplUzrVLywDs9oNxboZzPmK892vx2Q==" >> $GITHUB_ENV
 
@@ -245,8 +245,8 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-          repository: giesch/rogue-wizard
+          repository: giesch/vibe-spam
           path: .
           dockerfile: ./Dockerfile
-          tags: rogue-wizard
+          tags: vibe-spam
           push: false

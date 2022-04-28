@@ -1,5 +1,5 @@
 {
-  "name": "rogue-wizard",
+  "name": "vibe-spam",
   "version": "0.0.0",
   "license": "UNLICENSED",
   "scripts": {
@@ -13,7 +13,8 @@
     "build:github": "npm run setup && npm run config:local && npm run build",
     "config:local": "mkdir -p .config && cp config/Local.elm .config/Config.elm && cp config/local.env .env",
     "config:local:prod": "mkdir -p .config && cp config/Prod.elm .config/Config.elm && cp config/local-prod.env .env",
-    "config:prod": "mkdir -p .config && cp config/Prod.elm .config/Config.elm && rm -f .env"
+    "config:prod": "mkdir -p .config && cp config/Prod.elm .config/Config.elm && rm -f .env",
+    "review": "elm-review"
   },
   "devDependencies": {
     "@dillonkearns/elm-graphql": "^4.2.4",
@@ -21,6 +22,7 @@
     "@tailwindcss/forms": "^0.3.2",
     "@tailwindcss/typography": "^0.4.0",
     "concurrently": "6.0.2",
+    "elm-review": "^2.7.2",
     "elm-spa": "6.0.0",
     "elm-tailwind-modules": "^0.3.2",
     "elm-tooling": "^1.7.0",
