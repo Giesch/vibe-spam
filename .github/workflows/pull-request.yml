@@ -240,6 +240,8 @@ jobs:
         with:
           node-version: "16"
           cache: "npm"
+          cache-dependency-path: client/package-lock.json
+
       - name: Add elm-review, elm and elm-format to path
         run: npm bin >> $GITHUB_PATH
       - uses: sparksp/elm-review-action@v1
