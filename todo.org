@@ -1,6 +1,7 @@
 * Now
 - [ ] make it look decent
 - [ ] add chat room page
+- [ ] add lobby to flags
 
 * Next
 - [ ] remove expect calls from pubsub
