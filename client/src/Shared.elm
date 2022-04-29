@@ -40,7 +40,7 @@ default =
 
 
 update : Request -> Msg -> Model -> ( Model, Cmd Msg )
-update _ msg model =
+update _ _ model =
     ( model, Cmd.none )
 
 

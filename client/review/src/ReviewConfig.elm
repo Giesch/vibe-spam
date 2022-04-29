@@ -48,7 +48,7 @@ config =
         , NoDebug.TodoOrToString.rule
             |> Rule.ignoreErrorsForDirectories [ "tests/" ]
         , NoExposingEverything.rule
-        , NoImportingEverything.rule []
+        , NoImportingEverything.rule [ "Html.Styled" ]
         , NoMissingTypeAnnotation.rule
         , NoMissingTypeAnnotationInLetIn.rule
         , NoMissingTypeExpose.rule

@@ -70,6 +70,7 @@ update msg model =
     case msg of
         ClickedLink (Browser.Internal url) ->
             let
+                stringUrl : String
                 stringUrl =
                     Url.toString url
             in
