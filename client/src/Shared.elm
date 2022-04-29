@@ -10,7 +10,7 @@ module Shared exposing
 import Json.Decode as Decode
 import Request exposing (Request)
 import Shared.Flags
-import Shared.Session as Session exposing (Session)
+import Shared.Session exposing (Session)
 
 
 type alias Model =
@@ -40,10 +40,8 @@ default =
 
 
 update : Request -> Msg -> Model -> ( Model, Cmd Msg )
-update _ msg model =
-    case msg of
-        NoOp ->
-            ( model, Cmd.none )
+update _ _ model =
+    ( model, Cmd.none )
 
 
 subscriptions : Request -> Model -> Sub Msg

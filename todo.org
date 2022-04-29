@@ -1,6 +1,7 @@
 * Now
 - [ ] make it look decent
 - [ ] add chat room page
+- [ ] add lobby to flags
 
 * Next
 - [ ] remove expect calls from pubsub
@@ -15,7 +16,11 @@
 * Soon
 - [ ] tests for subscriptions
   this will need multiple test gql clients
-- [ ] set up elm review
+- [-] set up elm review
+  - [X] add to project
+  - [X] add to ci
+  - [-] fix remaining errors
+  - [ ] require in ci
   - [ ] disable elm analyze emacs setup
   - [ ] add elm review emacs setup (or switch to intellij?)
 
@@ -29,6 +34,8 @@
   - mimic phoenix channels - exponential backoff
 - [ ] tracing with honeycomb
 - [ ] NotFound page
+- [ ] is the elm build not caching deps correctly?
+  scripts include calls to 'npm ci'
 
 * Other
 - [-] catch up reading z2p

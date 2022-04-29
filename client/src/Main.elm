@@ -1,4 +1,4 @@
-module Main exposing (main)
+module Main exposing (Model, Msg, main)
 
 import Browser
 import Browser.Navigation as Nav exposing (Key)
@@ -70,6 +70,7 @@ update msg model =
     case msg of
         ClickedLink (Browser.Internal url) ->
             let
+                stringUrl : String
                 stringUrl =
                     Url.toString url
             in

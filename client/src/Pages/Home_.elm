@@ -3,13 +3,13 @@ module Pages.Home_ exposing (Model, Msg, page)
 import Api
 import Effect exposing (Effect)
 import Gen.Params.Home_ exposing (Params)
-import Html.Styled as Html exposing (..)
-import Html.Styled.Attributes as Attr exposing (css)
+import Html.Styled exposing (..)
+import Html.Styled.Attributes exposing (css)
 import Html.Styled.Events as Events
-import Json.Decode as Decode exposing (Decoder)
+import Json.Decode as Decode
 import Page
 import Ports
-import RemoteData exposing (RemoteData)
+import RemoteData
 import Request
 import Shared
 import Shared.Session as Session exposing (Session)
@@ -18,7 +18,7 @@ import View exposing (View)
 
 
 page : Shared.Model -> Request.With Params -> Page.With Model Msg
-page shared req =
+page shared _ =
     Page.advanced
         { init = init shared
         , update = update
@@ -51,8 +51,7 @@ init shared =
 
 
 type Msg
-    = GotLobby (Api.GraphqlData Api.LobbyData)
-    | GotCreatedRoom (Api.GraphqlData Api.RoomData)
+    = GotCreatedRoom
     | CreateRoom
     | FromJs (Result Decode.Error Ports.FromJsMsg)
 
@@ -60,10 +59,7 @@ type Msg
 update : Msg -> Model -> ( Model, Effect Msg )
 update msg model =
     case msg of
-        GotLobby lobby ->
-            ( { model | lobby = lobby }, Effect.none )
-
-        GotCreatedRoom _ ->
+        GotCreatedRoom ->
             ( model, Effect.none )
 
         CreateRoom ->
@@ -74,7 +70,7 @@ update msg model =
             , Effect.none
             )
 
-        FromJs (Err decodeError) ->
+        FromJs (Err _) ->
             ( model, Effect.none )
 
 
@@ -84,7 +80,7 @@ update msg model =
 
 createRoom : Effect Msg
 createRoom =
-    Api.createRoom GotCreatedRoom
+    Api.createRoom (\_ -> GotCreatedRoom)
 
 
 
@@ -92,7 +88,7 @@ createRoom =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Ports.subscription FromJs
 
 

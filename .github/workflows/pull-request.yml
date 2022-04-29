@@ -31,7 +31,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: rogue_wizard
+          POSTGRES_DB: vibe_spam
         ports:
           - 5432:5432
         options: >-
@@ -53,7 +53,7 @@ jobs:
           echo "APP_HOST=localhost" >> $GITHUB_ENV
           echo "APP_PORT=8080" >> $GITHUB_ENV
           echo "APP_URL=http://localhost:8000" >> $GITHUB_ENV
-          echo "DATABASE_URL=postgres://postgres:postgres@localhost:5432/rogue_wizard" >> $GITHUB_ENV
+          echo "DATABASE_URL=postgres://postgres:postgres@localhost:5432/vibe_spam" >> $GITHUB_ENV
           echo "REDIS_URL=redis://localhost:6379" >> $GITHUB_ENV
           echo "APP_SIGNING_SECRET=DEZ+TXqTNjb+qQu05MibWt4151A9wc1ZynbWv3dU8sBE+39IPJz9ZMDfQplUzrVLywDs9oNxboZzPmK892vx2Q==" >> $GITHUB_ENV
 
@@ -127,7 +127,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: rogue_wizard
+          POSTGRES_DB: vibe_spam
         ports:
           - 5432:5432
         options: >-
@@ -149,7 +149,7 @@ jobs:
           echo "APP_HOST=localhost" >> $GITHUB_ENV
           echo "APP_PORT=8080" >> $GITHUB_ENV
           echo "APP_URL=http://localhost:8000" >> $GITHUB_ENV
-          echo "DATABASE_URL=postgres://postgres:postgres@localhost:5432/rogue_wizard" >> $GITHUB_ENV
+          echo "DATABASE_URL=postgres://postgres:postgres@localhost:5432/vibe_spam" >> $GITHUB_ENV
           echo "REDIS_URL=redis://localhost:6379" >> $GITHUB_ENV
           echo "APP_SIGNING_SECRET=DEZ+TXqTNjb+qQu05MibWt4151A9wc1ZynbWv3dU8sBE+39IPJz9ZMDfQplUzrVLywDs9oNxboZzPmK892vx2Q==" >> $GITHUB_ENV
 
@@ -229,6 +229,35 @@ jobs:
       - run: npx elm-format --validate src
         working-directory: client
 
+  elm-review:
+    name: Elm Review
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+          cache: "npm"
+          cache-dependency-path: client/package-lock.json
+
+      - name: Add elm-review, elm and elm-format to path
+        working-directory: client
+        run: npm bin >> $GITHUB_PATH
+
+      - run: npm run build:github
+        working-directory: client
+
+      - uses: sparksp/elm-review-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          working-directory: client
+          # elm_review: elm-review
+          # elm_format: elm-format
+          # elm_compiler: elm
+
   docker-build:
     name: Docker Build
     runs-on: ubuntu-latest
@@ -245,8 +274,8 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-          repository: giesch/rogue-wizard
+          repository: giesch/vibe-spam
           path: .
           dockerfile: ./Dockerfile
-          tags: rogue-wizard
+          tags: vibe-spam
           push: false

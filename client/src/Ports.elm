@@ -2,7 +2,6 @@ port module Ports exposing
     ( FromJsMsg(..)
     , ToJsMsg(..)
     , lobbySubscribe
-    , lobbyUnsubscribe
     , subscription
     )
 
@@ -18,7 +17,6 @@ import Json.Encode as Encode
 
 type ToJsMsg
     = LobbySubscribe String
-    | LobbyUnsubscribe
 
 
 type FromJsMsg
@@ -28,11 +26,6 @@ type FromJsMsg
 lobbySubscribe : Effect msg
 lobbySubscribe =
     send (LobbySubscribe Subscriptions.lobbyUpdatesDocument)
-
-
-lobbyUnsubscribe : Effect msg
-lobbyUnsubscribe =
-    send LobbyUnsubscribe
 
 
 send : ToJsMsg -> Effect msg
@@ -93,12 +86,6 @@ encodeToJs msg =
             encodePortMsg
                 { kind = "lobby-subscribe"
                 , value = Encode.string document
-                }
-
-        LobbyUnsubscribe ->
-            encodePortMsg
-                { kind = "lobby-unsubscribe"
-                , value = Encode.null
                 }
 
 

@@ -1,7 +1,6 @@
 module Api.Subscriptions exposing
     ( LobbyData
     , RoomData
-    , lobbyUpdates
     , lobbyUpdatesDecoder
     , lobbyUpdatesDocument
     )
