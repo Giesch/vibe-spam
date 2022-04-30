@@ -99,10 +99,17 @@ update msg model =
         Shared sharedMsg ->
             let
                 ( shared, sharedCmd ) =
-                    Shared.update (Request.create () model.url model.key) sharedMsg model.shared
+                    Shared.update
+                        (Request.create () model.url model.key)
+                        sharedMsg
+                        model.shared
 
                 ( page, effect ) =
-                    Pages.init (Route.fromUrl model.url) shared model.url model.key
+                    Pages.init
+                        (Route.fromUrl model.url)
+                        shared
+                        model.url
+                        model.key
             in
             if page == Gen.Model.Redirecting_ then
                 ( { model | shared = shared, page = page }

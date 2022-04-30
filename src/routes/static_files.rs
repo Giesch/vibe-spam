@@ -1,5 +1,7 @@
+use crate::schema::LobbyResponse;
 use crate::session::{self, Session};
 
+use crate::schema::lobby;
 use anyhow::Context;
 use askama::Template;
 use axum::extract::Extension;
@@ -8,6 +10,7 @@ use axum::response::IntoResponse;
 use axum::routing::{get_service, MethodRouter};
 use axum::Json;
 use serde::Serialize;
+use sqlx::PgPool;
 use std::fs;
 use std::sync::Arc;
 use tower_http::services::ServeDir;
@@ -15,24 +18,35 @@ use tower_http::services::ServeDir;
 // This is used by the vite dev server to simulate the
 // flags being served in html in prod
 #[tracing::instrument(name = "get flags")]
-pub async fn get_flags(session: Session) -> Json<ElmFlagsJson> {
-    Json(flags_from_session(session))
+pub async fn get_flags(
+    session: Session,
+    Extension(db): Extension<PgPool>,
+) -> Result<Json<ElmFlagsJson>, StatusCode> {
+    let flags = build_elm_flags(session, &db)
+        .await
+        .map_err(error_to_500_sync)?;
+
+    Ok(Json(flags))
 }
 
 #[tracing::instrument(name = "index html")]
 pub async fn index_html(
     session: Session,
     Extension(assets): Extension<Arc<Assets>>,
+    Extension(db): Extension<PgPool>,
 ) -> Result<impl IntoResponse, StatusCode> {
-    let flags = flags_from_session(session);
+    let flags = build_elm_flags(session, &db)
+        .await
+        .map_err(error_to_500_sync)?;
 
     Ok(IndexTemplate::new(&assets, flags))
 }
 
-fn flags_from_session(session: Session) -> ElmFlagsJson {
+async fn build_elm_flags(session: Session, db: &PgPool) -> anyhow::Result<ElmFlagsJson> {
     let session: ElmSessionJson = session.data().into();
+    let lobby = lobby::fetch(db).await?;
 
-    ElmFlagsJson { session }
+    Ok(ElmFlagsJson { session, lobby })
 }
 
 impl From<&session::Data> for ElmSessionJson {
@@ -53,11 +67,17 @@ async fn error_to_500(error: impl core::fmt::Debug) -> impl IntoResponse {
     StatusCode::INTERNAL_SERVER_ERROR
 }
 
+fn error_to_500_sync(error: impl core::fmt::Debug) -> StatusCode {
+    tracing::error!("Error serving static file: {:?}", error);
+    StatusCode::INTERNAL_SERVER_ERROR
+}
+
 // NOTE this needs to match the elm struct Shared.Flags
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct ElmFlagsJson {
     session: ElmSessionJson,
+    lobby: LobbyResponse,
 }
 
 // NOTE this needs to match the elm struct Shared.Session

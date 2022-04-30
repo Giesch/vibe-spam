@@ -1,10 +1,9 @@
 module Api exposing
     ( GraphqlData
-    , LobbyData
-    , RoomData
     , createRoom
     )
 
+import Api.RoomData exposing (RoomData)
 import Config
 import Effect exposing (Effect)
 import Graphql.Http
@@ -22,16 +21,6 @@ import VibeSpam.Object.Room as Room
 
 type alias GraphqlData a =
     RemoteData (Graphql.Http.Error ()) a
-
-
-type alias LobbyData =
-    { rooms : List RoomData
-    }
-
-
-type alias RoomData =
-    { title : String
-    }
 
 
 createRoom : (GraphqlData RoomData -> msg) -> Effect msg

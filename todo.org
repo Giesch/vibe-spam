@@ -1,7 +1,7 @@
 * Now
+- [ ] add lobby to flags
 - [ ] make it look decent
 - [ ] add chat room page
-- [ ] add lobby to flags
 
 * Next
 - [ ] remove expect calls from pubsub
@@ -19,6 +19,7 @@
 - [-] set up elm review
   - [X] add to project
   - [X] add to ci
+  - [X] add TODO ban
   - [-] fix remaining errors
   - [ ] require in ci
   - [ ] disable elm analyze emacs setup
