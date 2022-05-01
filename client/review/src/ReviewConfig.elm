@@ -11,11 +11,11 @@ when inside the directory containing this file.
 
 -}
 
-import NoForbiddenWords
 import Docs.ReviewAtDocs
 import NoDebug.Log
 import NoDebug.TodoOrToString
 import NoExposingEverything
+import NoForbiddenWords
 import NoImportingEverything
 import NoMissingTypeAnnotation
 import NoMissingTypeAnnotationInLetIn
@@ -55,7 +55,9 @@ config =
         , NoMissingTypeExpose.rule
         , NoSimpleLetBody.rule
         , NoPrematureLetComputation.rule
-        , NoUnused.CustomTypeConstructors.rule []
+
+        -- This catches Msg.NoOp in Shared, which I want to leave for now
+        -- , NoUnused.CustomTypeConstructors.rule []
         , NoUnused.CustomTypeConstructorArgs.rule
         , NoUnused.Dependencies.rule
         , NoUnused.Exports.rule
