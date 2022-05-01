@@ -3,10 +3,12 @@ module Pages.Home_ exposing (Model, Msg, page)
 import Api
 import Api.LobbyData exposing (LobbyData)
 import Api.RoomData exposing (RoomData)
+import Components.Table as Table
+import Css
 import Effect exposing (Effect)
 import Gen.Params.Home_ exposing (Params)
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (css)
+import Html.Styled.Attributes as Attrs exposing (css)
 import Html.Styled.Events as Events
 import Json.Decode as Decode
 import Page
@@ -100,28 +102,57 @@ subscriptions _ =
 
 view : Model -> View Msg
 view model =
-    { title = "home"
-    , body =
-        [ viewSession model.session
-        , viewCreateRoomButton
-        , viewLobby model.lobby
-        ]
+    { title = "vibe spam"
+    , body = layout model
     }
 
 
-viewSession : Maybe Session -> Html msg
-viewSession maybeSession =
-    case maybeSession of
-        Just session ->
-            div
-                [ css [ Tw.flex, Tw.flex_col ] ]
-                [ div []
-                    [ text <| "session: " ++ Session.id session
-                    ]
-                ]
+layout : Model -> List (Html Msg)
+layout model =
+    [ pageHeader
+    , main_ [ css [ Tw.flex_grow ] ]
+        [ case model.lobby of
+            RemoteData.Success lobby ->
+                content lobby
 
-        Nothing ->
-            text "no session"
+            _ ->
+                Debug.todo "loading/failed lobby"
+        ]
+    ]
+
+
+content : LobbyData -> Html msg
+content lobby =
+    div [ css [ Tw.px_32, Tw.py_16 ] ]
+        [ div [ css [ Tw.flex, Tw.flex_col, Tw.space_y_2 ] ]
+            [ Table.view { rows = lobby.rooms } ]
+        ]
+
+
+pageHeader : Html msg
+pageHeader =
+    let
+        headerStyles : List Css.Style
+        headerStyles =
+            [ Tw.bg_green_500
+            , Tw.text_white
+            , Tw.p_6
+            , Tw.flex
+            , Tw.items_end
+            , Tw.space_x_10
+            ]
+    in
+    header [ css headerStyles ]
+        [ div [ css [ Tw.text_2xl, Tw.font_bold, Tw.pr_12 ] ]
+            [ text "vibespam" ]
+        , tabLink { name = "lobby", href = "/" }
+        ]
+
+
+tabLink : { name : String, href : String } -> Html msg
+tabLink { name, href } =
+    a [ css [ Tw.text_lg ], Attrs.href href ]
+        [ text name ]
 
 
 viewCreateRoomButton : Html Msg
