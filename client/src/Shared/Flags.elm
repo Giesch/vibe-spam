@@ -17,6 +17,4 @@ decoder : Decoder Flags
 decoder =
     Decode.succeed Flags
         |> JDP.optional "session" (Decode.map Just Session.decoder) Nothing
-        -- TODO test that this is present, at least manually
-        -- preferrably with an automated test on the rust side
         |> JDP.required "lobby" LobbyData.decoder
