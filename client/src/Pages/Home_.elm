@@ -42,7 +42,7 @@ type alias Model =
 init : Shared.Model -> ( Model, Effect Msg )
 init shared =
     ( { session = shared.session
-      , lobby = RemoteData.NotAsked
+      , lobby = RemoteData.Success shared.lobby
       }
     , Ports.lobbySubscribe
     )
