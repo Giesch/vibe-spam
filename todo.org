@@ -16,12 +16,14 @@
 * Soon
 - [ ] tests for subscriptions
   this will need multiple test gql clients
+- [ ] test lobby flag with actual rooms present
+  just need to create a room in the test
 - [-] set up elm review
   - [X] add to project
   - [X] add to ci
-  - [X] add TODO ban
-  - [-] fix remaining errors
-  - [ ] require in ci
+  - [X] add banned comment tags
+  - [X] fix remaining errors
+  - [X] require in ci
   - [ ] disable elm analyze emacs setup
   - [ ] add elm review emacs setup (or switch to intellij?)
 
