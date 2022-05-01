@@ -36,7 +36,6 @@ send =
 subscription : (Result Decode.Error FromJsMsg -> msg) -> Sub msg
 subscription toMsg =
     let
-        -- TODO use a custom error type? instead of/wrapping Decode.Error
         handleJson : Decode.Value -> Result Decode.Error FromJsMsg
         handleJson json =
             Decode.decodeValue fromJsDecoder json

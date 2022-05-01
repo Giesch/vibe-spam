@@ -7,6 +7,7 @@ module Shared exposing
     , update
     )
 
+import Api.LobbyData exposing (LobbyData)
 import Json.Decode as Decode
 import Request exposing (Request)
 import Shared.Flags
@@ -15,7 +16,9 @@ import Shared.Session exposing (Session)
 
 type alias Model =
     -- NOTE for now, this matches Flags
-    { session : Maybe Session }
+    { session : Maybe Session
+    , lobby : LobbyData
+    }
 
 
 type Msg
@@ -36,6 +39,7 @@ init _ flagsJson =
 default : Model
 default =
     { session = Nothing
+    , lobby = { rooms = [] }
     }
 
 

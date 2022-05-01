@@ -1,14 +1,13 @@
 module Api exposing
     ( GraphqlData
-    , LobbyData
-    , RoomData
     , createRoom
     )
 
+import Api.RoomData exposing (RoomData)
 import Config
 import Effect exposing (Effect)
 import Graphql.Http
-import Graphql.Operation exposing (RootMutation, RootQuery)
+import Graphql.Operation exposing (RootMutation)
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet)
 import RemoteData exposing (RemoteData)
 import VibeSpam.Mutation as Mutation
@@ -22,16 +21,6 @@ import VibeSpam.Object.Room as Room
 
 type alias GraphqlData a =
     RemoteData (Graphql.Http.Error ()) a
-
-
-type alias LobbyData =
-    { rooms : List RoomData
-    }
-
-
-type alias RoomData =
-    { title : String
-    }
 
 
 createRoom : (GraphqlData RoomData -> msg) -> Effect msg
@@ -55,18 +44,6 @@ roomSelection =
 
 
 -- EFFECTS
-
-
-queryEffect :
-    (GraphqlData resp -> msg)
-    -> SelectionSet resp RootQuery
-    -> Effect msg
-queryEffect toMsg selection =
-    selection
-        |> Graphql.Http.queryRequest endpoint
-        |> Graphql.Http.send
-            (Graphql.Http.discardParsedErrorData >> RemoteData.fromResult >> toMsg)
-        |> Effect.fromCmd
 
 
 mutationEffect :

@@ -7,6 +7,7 @@ use bb8_redis::RedisConnectionManager;
 use chrono::{DateTime, Utc};
 use futures::StreamExt;
 use futures_core::stream::Stream;
+use serde::Serialize;
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -54,12 +55,12 @@ impl Subscription {
     }
 }
 
-#[derive(SimpleObject)]
+#[derive(SimpleObject, Serialize, Debug)]
 pub struct LobbyResponse {
     rooms: Vec<Room>,
 }
 
-#[derive(SimpleObject)]
+#[derive(SimpleObject, Serialize, Debug)]
 pub struct Room {
     id: Uuid,
     title: String,

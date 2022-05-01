@@ -1,6 +1,8 @@
 module Pages.Home_ exposing (Model, Msg, page)
 
 import Api
+import Api.LobbyData exposing (LobbyData)
+import Api.RoomData exposing (RoomData)
 import Effect exposing (Effect)
 import Gen.Params.Home_ exposing (Params)
 import Html.Styled exposing (..)
@@ -33,14 +35,14 @@ page shared _ =
 
 type alias Model =
     { session : Maybe Session
-    , lobby : Api.GraphqlData Api.LobbyData
+    , lobby : Api.GraphqlData LobbyData
     }
 
 
 init : Shared.Model -> ( Model, Effect Msg )
 init shared =
     ( { session = shared.session
-      , lobby = RemoteData.NotAsked
+      , lobby = RemoteData.Success shared.lobby
       }
     , Ports.lobbySubscribe
     )
@@ -129,7 +131,7 @@ viewCreateRoomButton =
         [ text "Create Room" ]
 
 
-viewLobby : Api.GraphqlData Api.LobbyData -> Html msg
+viewLobby : Api.GraphqlData LobbyData -> Html msg
 viewLobby data =
     case data of
         RemoteData.NotAsked ->
@@ -154,6 +156,6 @@ viewLobbyLoading =
     div [] <| [ text "loading..." ]
 
 
-viewRoomRow : Api.RoomData -> Html msg
+viewRoomRow : RoomData -> Html msg
 viewRoomRow room =
     div [] [ text ("room: " ++ room.title) ]
