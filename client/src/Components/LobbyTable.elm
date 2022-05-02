@@ -7,6 +7,7 @@ module Components.LobbyTable exposing
 import Css
 import Html.Styled exposing (..)
 import Html.Styled.Attributes as Attr exposing (css)
+import Html.Styled.Events as Events
 import Tailwind.Breakpoints as Bp
 import Tailwind.Utilities as Tw
 
@@ -192,6 +193,7 @@ addRowButton : AddRowButtonConfig msg -> Html msg
 addRowButton config =
     button
         [ Attr.type_ "button"
+        , Events.onClick config.onClick
         , css
             [ Tw.inline_flex
             , Tw.items_center

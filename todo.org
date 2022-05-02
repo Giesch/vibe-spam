@@ -1,4 +1,5 @@
 * Now
+- [ ] fix new room button
 
 * Next
 - [ ] use ints for times in json instead of DateTime
