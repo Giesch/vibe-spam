@@ -1,13 +1,13 @@
 * Now
-- [-] make home page look acceptable
-  - [X] table layout from tailwind ui
-  - [X] get a version with just the columns we want
-  - [X] used passed-in config for rows & links
-  - [X] fix lint
-  - [ ] fix responsiveness
-    prevent horizontal overflow
 
 * Next
+- [ ] use ints for times in json instead of DateTime
+  - [ ] first, remove created_at completely from the api side
+    - [ ] deploy that
+  - [ ] add a way to generate types from the local gql api
+  - [ ] add a custom scalar that just wraps the int
+  - [ ] remove the packages for utc time
+
 - [ ] add chat room page
 - [ ] remove expect calls from pubsub
   panicing might be right, but the joinhandle result has to be handled
