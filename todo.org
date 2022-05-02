@@ -3,9 +3,9 @@
   - [X] table layout from tailwind ui
   - [X] get a version with just the columns we want
   - [X] used passed-in config for rows & links
+  - [X] fix lint
   - [ ] fix responsiveness
     prevent horizontal overflow
-  - [ ] fix lint
 
 * Next
 - [ ] add chat room page

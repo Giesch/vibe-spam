@@ -126,7 +126,10 @@ content lobby =
     let
         toRoomRow : RoomData -> LobbyTable.RoomRow
         toRoomRow room =
-            { title = room.title, lastActivity = "2022 04 01", joinLink = "#" }
+            { title = room.title
+            , lastActivity = "2022 04 01"
+            , joinLink = "#"
+            }
     in
     div [ css [ Tw.px_32, Tw.py_16 ] ]
         [ div [ css [ Tw.flex, Tw.flex_col, Tw.space_y_2 ] ]
