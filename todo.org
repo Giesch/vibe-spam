@@ -1,12 +1,17 @@
 * Now
-- [ ] add lobby to flags
-- [ ] make it look decent
-- [ ] add chat room page
 
 * Next
+- [ ] use ints for times in json instead of DateTime
+  - [ ] first, remove created_at completely from the api side
+    - [ ] deploy that
+  - [ ] add a way to generate types from the local gql api
+  - [ ] add a custom scalar that just wraps the int
+  - [ ] remove the packages for utc time
+
+- [ ] add chat room page
 - [ ] remove expect calls from pubsub
-  the initial subscribe expect should stay
-  decode errors - at least log, maybe publish to watcher
+  panicing might be right, but the joinhandle result has to be handled
+  a decode error in a message the server sent to itself is a programmer error
 
 - [ ] unsubscribe from lobby on leaving lobby
   this might require some special link handler in Main.elm
@@ -18,14 +23,6 @@
   this will need multiple test gql clients
 - [ ] test lobby flag with actual rooms present
   just need to create a room in the test
-- [-] set up elm review
-  - [X] add to project
-  - [X] add to ci
-  - [X] add banned comment tags
-  - [X] fix remaining errors
-  - [X] require in ci
-  - [ ] disable elm analyze emacs setup
-  - [ ] add elm review emacs setup (or switch to intellij?)
 
 * Someday
 - [ ] make the axum fallback route in local dev point back to vite server
@@ -39,7 +36,13 @@
 - [ ] NotFound page
 - [ ] is the elm build not caching deps correctly?
   scripts include calls to 'npm ci'
+- [ ] use structured build config:
+  https://github.com/MattCheely/elm-build-config
 
 * Other
 - [-] catch up reading z2p
   idempotency is the only one left
+- [ ] elm-review editor setup
+  - [ ] disable elm analyze emacs setup - this is in lsp?
+  - [ ] add elm review emacs setup (or switch to intellij?)
+  - [ ] investigate elm-pair emacs setup

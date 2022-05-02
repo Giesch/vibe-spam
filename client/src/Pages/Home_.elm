@@ -3,18 +3,18 @@ module Pages.Home_ exposing (Model, Msg, page)
 import Api
 import Api.LobbyData exposing (LobbyData)
 import Api.RoomData exposing (RoomData)
+import Components.LobbyTable as LobbyTable
+import Css
 import Effect exposing (Effect)
 import Gen.Params.Home_ exposing (Params)
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (css)
-import Html.Styled.Events as Events
+import Html.Styled.Attributes as Attrs exposing (css)
 import Json.Decode as Decode
 import Page
 import Ports
-import RemoteData
 import Request
 import Shared
-import Shared.Session as Session exposing (Session)
+import Shared.Session exposing (Session)
 import Tailwind.Utilities as Tw
 import View exposing (View)
 
@@ -35,14 +35,14 @@ page shared _ =
 
 type alias Model =
     { session : Maybe Session
-    , lobby : Api.GraphqlData LobbyData
+    , lobby : Result String LobbyData
     }
 
 
 init : Shared.Model -> ( Model, Effect Msg )
 init shared =
     ( { session = shared.session
-      , lobby = RemoteData.Success shared.lobby
+      , lobby = Ok shared.lobby
       }
     , Ports.lobbySubscribe
     )
@@ -68,12 +68,14 @@ update msg model =
             ( model, createRoom )
 
         FromJs (Ok (Ports.LobbyUpdated lobbyData)) ->
-            ( { model | lobby = RemoteData.Success lobbyData }
+            ( { model | lobby = Ok lobbyData }
             , Effect.none
             )
 
-        FromJs (Err _) ->
-            ( model, Effect.none )
+        FromJs (Err error) ->
+            ( { model | lobby = Err <| Decode.errorToString error }
+            , Effect.none
+            )
 
 
 
@@ -100,62 +102,66 @@ subscriptions _ =
 
 view : Model -> View Msg
 view model =
-    { title = "home"
-    , body =
-        [ viewSession model.session
-        , viewCreateRoomButton
-        , viewLobby model.lobby
-        ]
+    { title = "vibe spam"
+    , body = layout model
     }
 
 
-viewSession : Maybe Session -> Html msg
-viewSession maybeSession =
-    case maybeSession of
-        Just session ->
-            div
-                [ css [ Tw.flex, Tw.flex_col ] ]
-                [ div []
-                    [ text <| "session: " ++ Session.id session
-                    ]
-                ]
+layout : Model -> List (Html Msg)
+layout model =
+    [ pageHeader
+    , main_ [ css [ Tw.flex_grow ] ]
+        [ case model.lobby of
+            Ok lobby ->
+                content lobby
 
-        Nothing ->
-            text "no session"
-
-
-viewCreateRoomButton : Html Msg
-viewCreateRoomButton =
-    button
-        [ Events.onClick CreateRoom ]
-        [ text "Create Room" ]
+            Err error ->
+                text ("Oops! Something went wrong: " ++ error)
+        ]
+    ]
 
 
-viewLobby : Api.GraphqlData LobbyData -> Html msg
-viewLobby data =
-    case data of
-        RemoteData.NotAsked ->
-            viewLobbyLoading
-
-        RemoteData.Loading ->
-            viewLobbyLoading
-
-        RemoteData.Failure _ ->
-            text "oops"
-
-        RemoteData.Success lobby ->
-            if List.isEmpty lobby.rooms then
-                div [] [ text "empty lobby" ]
-
-            else
-                div [] (List.map viewRoomRow lobby.rooms)
-
-
-viewLobbyLoading : Html msg
-viewLobbyLoading =
-    div [] <| [ text "loading..." ]
+content : LobbyData -> Html Msg
+content lobby =
+    let
+        toRoomRow : RoomData -> LobbyTable.RoomRow
+        toRoomRow room =
+            { title = room.title
+            , lastActivity = "2022 04 01"
+            , joinLink = "#"
+            }
+    in
+    div [ css [ Tw.px_32, Tw.py_16 ] ]
+        [ div [ css [ Tw.flex, Tw.flex_col, Tw.space_y_2 ] ]
+            [ LobbyTable.view
+                { rows = List.map toRoomRow lobby.rooms
+                , onNewRoom = CreateRoom
+                }
+            ]
+        ]
 
 
-viewRoomRow : RoomData -> Html msg
-viewRoomRow room =
-    div [] [ text ("room: " ++ room.title) ]
+pageHeader : Html msg
+pageHeader =
+    let
+        headerStyles : List Css.Style
+        headerStyles =
+            [ Tw.bg_green_500
+            , Tw.text_white
+            , Tw.p_6
+            , Tw.flex
+            , Tw.items_end
+            , Tw.space_x_10
+            ]
+    in
+    header [ css headerStyles ]
+        [ div [ css [ Tw.text_2xl, Tw.font_bold, Tw.pr_12 ] ]
+            [ text "vibespam" ]
+        , tabLink { name = "lobby", href = "/" }
+        ]
+
+
+tabLink : { name : String, href : String } -> Html msg
+tabLink { name, href } =
+    a [ css [ Tw.text_lg ], Attrs.href href ]
+        [ text name ]
