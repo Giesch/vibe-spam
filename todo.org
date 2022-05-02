@@ -1,8 +1,11 @@
 * Now
 - [-] make home page look acceptable
   - [X] table layout from tailwind ui
-  - [ ] get a version with just the columns we want
-  - [ ] used passed-in config for rows & events
+  - [X] get a version with just the columns we want
+  - [X] used passed-in config for rows & links
+  - [ ] fix responsiveness
+    prevent horizontal overflow
+  - [ ] fix lint
 
 * Next
 - [ ] add chat room page

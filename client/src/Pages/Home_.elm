@@ -3,7 +3,7 @@ module Pages.Home_ exposing (Model, Msg, page)
 import Api
 import Api.LobbyData exposing (LobbyData)
 import Api.RoomData exposing (RoomData)
-import Components.Table as Table
+import Components.LobbyTable as LobbyTable
 import Css
 import Effect exposing (Effect)
 import Gen.Params.Home_ exposing (Params)
@@ -121,11 +121,20 @@ layout model =
     ]
 
 
-content : LobbyData -> Html msg
+content : LobbyData -> Html Msg
 content lobby =
+    let
+        toRoomRow : RoomData -> LobbyTable.RoomRow
+        toRoomRow room =
+            { title = room.title, lastActivity = "2022 04 01", joinLink = "#" }
+    in
     div [ css [ Tw.px_32, Tw.py_16 ] ]
         [ div [ css [ Tw.flex, Tw.flex_col, Tw.space_y_2 ] ]
-            [ Table.view { rows = lobby.rooms } ]
+            [ LobbyTable.view
+                { rows = List.map toRoomRow lobby.rooms
+                , onNewRoom = CreateRoom
+                }
+            ]
         ]
 
 
