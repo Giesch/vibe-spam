@@ -36,14 +36,7 @@ import Simplify
 
 config : List Rule
 config =
-    List.map
-        (Rule.ignoreErrorsForDirectories
-            [ ".config"
-            , ".elm-graphql"
-            , ".elm-spa"
-            , ".elm-tailwind-modules"
-            ]
-        )
+    List.map ignoreGeneratedCode
         [ Docs.ReviewAtDocs.rule
         , NoDebug.Log.rule
         , NoDebug.TodoOrToString.rule
@@ -55,16 +48,25 @@ config =
         , NoMissingTypeExpose.rule
         , NoSimpleLetBody.rule
         , NoPrematureLetComputation.rule
-
-        -- This catches Msg.NoOp in Shared, which I want to leave for now
-        -- , NoUnused.CustomTypeConstructors.rule []
+        , Rule.ignoreErrorsForFiles [ "src/Shared.elm" ] <|
+            NoUnused.CustomTypeConstructors.rule []
         , NoUnused.CustomTypeConstructorArgs.rule
         , NoUnused.Dependencies.rule
-        , NoUnused.Exports.rule
+        , Rule.ignoreErrorsForFiles [ "src/Shared/Session.elm" ]
+            NoUnused.Exports.rule
         , NoUnused.Modules.rule
         , NoUnused.Parameters.rule
         , NoUnused.Patterns.rule
         , NoUnused.Variables.rule
         , Simplify.rule Simplify.defaults
         , NoForbiddenWords.rule [ "TODO", "FIXME" ]
+        ]
+
+
+ignoreGeneratedCode =
+    Rule.ignoreErrorsForDirectories
+        [ ".config"
+        , ".elm-graphql"
+        , ".elm-spa"
+        , ".elm-tailwind-modules"
         ]
