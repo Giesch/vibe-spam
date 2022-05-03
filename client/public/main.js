@@ -96,6 +96,6 @@ function getWebsocketUrlForEnv() {
   if (import.meta.env.MODE === "development") {
     return `ws://localhost:8000${GQL_WS_ROUTE}`;
   } else {
-    return `ws://${window.location.hostname}${GQL_WS_ROUTE}`;
+    return `wss://${window.location.hostname}${GQL_WS_ROUTE}`;
   }
 }
