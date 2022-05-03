@@ -1,5 +1,6 @@
 * Now
-- [ ] fix new room button
+- [X] fix new room button
+- [ ] fix insecure websocket
 
 * Next
 - [ ] use ints for times in json instead of DateTime
