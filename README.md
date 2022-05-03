@@ -2,14 +2,17 @@
 
 ## basic dev flow
 
-first time:
-cp .example.env .env
+first time:  
+cp .example.env .env  
 cargo install bunyan
 
 every time:
+
+```sh
 docker-compose up -d # bring up postgres and redis
 sqlx migrate run # migrate postgres
 cargo run | bunyan # run the app
+```
 
 ## testing commands
 
@@ -27,7 +30,7 @@ TEST_LOG=true cargo test test_fn_name | bunyan
 
 ## scripts directory
 
-psql.sh - connects to the docker-compose postgres database
+psql.sh - connects to the docker-compose postgres database  
 prepare.sh - commits an update to the sqlx-data.json file
 
 ## migrations
@@ -55,5 +58,14 @@ then, in another shell in this directory:
 DATABASE_URL="postgres://postgres:<PASSWORD_HERE>@localhost:5432" sqlx migrate run
 ```
 
-for direct psql to prod: fly pg connect --app vibe-spam-postgres
-for direct shell to prod: fly ssh console --app vibe-spam
+for direct psql to prod:
+
+```sh
+fly pg connect --app vibe-spam-postgres
+```
+
+for direct shell to prod:
+
+```sh
+fly ssh console --app vibe-spam
+```
