@@ -5,7 +5,7 @@ module Pages.Rooms.Slug_ exposing
     )
 
 import Components.PageHeader as PageHeader
-import Css
+import Css exposing (Style)
 import Effect exposing (Effect)
 import Gen.Params.Rooms.Slug_ exposing (Params)
 import Html.Styled exposing (..)
@@ -38,7 +38,7 @@ type alias Model =
 
 type alias MessageData =
     { content : String
-    , authoredByUs : Bool
+    , authorSessionId : String
     }
 
 
@@ -114,13 +114,7 @@ leftSection =
 
 rightSection : Html Msg
 rightSection =
-    section
-        [ css
-            [ Tw.col_span_5
-            , Tw.flex
-            , Tw.flex_col_reverse
-            ]
-        ]
+    section [ css [ Tw.col_span_5, Tw.flex, Tw.flex_col_reverse ] ]
         [ viewMessage "Message 1"
         , viewMessage "Message 2"
         , viewMessage "Message 3"
@@ -133,5 +127,6 @@ viewMessage message =
         [ text message ]
 
 
+debug : List Style
 debug =
     [ Tw.border_4, Tw.border_red_800 ]

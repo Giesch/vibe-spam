@@ -11,6 +11,7 @@ use hyper::server::conn::AddrIncoming;
 use secrecy::ExposeSecret;
 use sqlx::postgres::PgPoolOptions;
 use std::net::{SocketAddr, TcpListener};
+use std::sync::Arc;
 
 type AppServer = Server<AddrIncoming, IntoMakeService<Router>>;
 
@@ -43,7 +44,10 @@ impl App {
         let lobby_watcher = LobbyWatcher::spawn(&redis, &db)
             .await
             .context("failed to spawn initial lobby watcher")?;
-        let schema = schema::new(db.clone(), redis.clone(), lobby_watcher);
+
+        let settings = Arc::new(settings);
+
+        let schema = schema::new(db.clone(), redis.clone(), lobby_watcher, settings.clone());
         let router = routes::make_router(schema, db, redis, settings)?;
         let server = axum::Server::from_tcp(listener)?.serve(router.into_make_service());
 

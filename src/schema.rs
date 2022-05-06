@@ -9,9 +9,13 @@ use futures::StreamExt;
 use futures_core::stream::Stream;
 use serde::Serialize;
 use sqlx::PgPool;
+use std::sync::Arc;
 use uuid::Uuid;
 
-use crate::pubsub::{self, LobbyPublisher, LobbyWatcher};
+use crate::{
+    pubsub::{self, LobbyPublisher, LobbyWatcher},
+    settings::Settings,
+};
 
 pub mod lobby;
 mod lobby_repo;
@@ -35,9 +39,10 @@ pub struct Mutation;
 impl Mutation {
     async fn create_room<'ctx>(&self, ctx: &'ctx Context<'_>) -> Result<Room> {
         let db = ctx.db();
+        let settings = ctx.settings();
         let mut lobby_publisher = ctx.lobby_publisher().await?;
 
-        let room = lobby::create_room(db, &mut lobby_publisher).await?;
+        let room = lobby::create_room(db, &settings, &mut lobby_publisher).await?;
 
         Ok(room)
     }
@@ -119,11 +124,13 @@ pub fn new(
     db: PgPool,
     redis: Pool<RedisConnectionManager>,
     lobby_watcher: LobbyWatcher,
+    settings: Arc<Settings>,
 ) -> VibeSpam {
     Schema::build(Query, Mutation, Subscription)
         .data(db)
         .data(redis)
         .data(lobby_watcher)
+        .data(settings)
         .finish()
 }
 
@@ -133,6 +140,8 @@ pub fn sdl() -> String {
 
 #[async_trait]
 trait VibeSpamContext {
+    fn settings(&self) -> &Settings;
+
     fn db(&self) -> &PgPool;
 
     async fn redis(&self) -> anyhow::Result<PooledConnection<RedisConnectionManager>>;
@@ -144,6 +153,10 @@ trait VibeSpamContext {
 
 #[async_trait]
 impl<'ctx> VibeSpamContext for Context<'ctx> {
+    fn settings(&self) -> &Settings {
+        self.data_unchecked::<Arc<Settings>>()
+    }
+
     fn db(&self) -> &PgPool {
         self.data_unchecked::<PgPool>()
     }
