@@ -1,4 +1,4 @@
-module Shared.RouteHelpers exposing
+module Shared.Routes exposing
     ( home
     , notFound
     , rooms

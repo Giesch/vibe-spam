@@ -16,7 +16,7 @@ import Page
 import Ports
 import Request
 import Shared
-import Shared.RouteHelpers as RouteHelpers
+import Shared.Routes as Routes
 import Shared.Session exposing (Session)
 import Tailwind.Utilities as Tw
 import VibeSpam.Scalar as Scalar exposing (Uuid)
@@ -72,14 +72,20 @@ update msg model =
             ( model, createRoom )
 
         FromJs (Ok (Ports.LobbyUpdated lobbyData)) ->
-            ( { model | lobby = Ok lobbyData }
-            , Effect.none
-            )
+            let
+                newModel : Model
+                newModel =
+                    { model | lobby = Ok lobbyData }
+            in
+            ( newModel, Effect.none )
 
         FromJs (Err error) ->
-            ( { model | lobby = Err <| Decode.errorToString error }
-            , Effect.none
-            )
+            let
+                newModel : Model
+                newModel =
+                    { model | lobby = Err <| Decode.errorToString error }
+            in
+            ( newModel, Effect.none )
 
 
 
@@ -135,7 +141,7 @@ content lobby =
         toRoomRow room =
             { title = room.title
             , lastActivity = "2022 04 01"
-            , joinLink = RouteHelpers.rooms { slug = room.title }
+            , joinLink = Routes.rooms { slug = room.title }
             }
     in
     div [ css [ Tw.px_32, Tw.py_16 ] ]

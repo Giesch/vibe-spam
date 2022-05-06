@@ -42,7 +42,7 @@ impl Mutation {
         let settings = ctx.settings();
         let mut lobby_publisher = ctx.lobby_publisher().await?;
 
-        let room = lobby::create_room(db, &settings, &mut lobby_publisher).await?;
+        let room = lobby::create_room(db, settings, &mut lobby_publisher).await?;
 
         Ok(room)
     }
