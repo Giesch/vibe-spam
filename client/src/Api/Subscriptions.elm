@@ -12,6 +12,7 @@ import Json.Decode exposing (Decoder)
 import VibeSpam.Object as Object
 import VibeSpam.Object.LobbyResponse as LobbyResponse
 import VibeSpam.Object.Room as Room
+import VibeSpam.ScalarCodecs as ScalarCodecs exposing (Uuid)
 import VibeSpam.Subscription as Subscription
 
 
@@ -38,7 +39,9 @@ lobbySelection =
 
 roomSelection : SelectionSet RoomData Object.Room
 roomSelection =
-    SelectionSet.map RoomData Room.title
+    SelectionSet.map2 RoomData
+        Room.id
+        Room.title
 
 
 type alias LobbyData =
@@ -47,5 +50,6 @@ type alias LobbyData =
 
 
 type alias RoomData =
-    { title : String
+    { id : Uuid
+    , title : String
     }

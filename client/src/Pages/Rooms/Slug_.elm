@@ -1,16 +1,24 @@
-module Pages.Rooms.Slug_ exposing (Model, Msg, page)
+module Pages.Rooms.Slug_ exposing
+    ( Model
+    , Msg
+    , page
+    )
 
+import Components.PageHeader as PageHeader
+import Css
 import Effect exposing (Effect)
 import Gen.Params.Rooms.Slug_ exposing (Params)
+import Html.Styled exposing (..)
+import Html.Styled.Attributes as Attrs exposing (css)
 import Page
 import Request
 import Shared
+import Tailwind.Utilities as Tw
 import View exposing (View)
-import Page
 
 
 page : Shared.Model -> Request.With Params -> Page.With Model Msg
-page shared req =
+page _ _ =
     Page.advanced
         { init = init
         , update = update
@@ -24,12 +32,22 @@ page shared req =
 
 
 type alias Model =
-    {}
+    { messages : List MessageData
+    }
+
+
+type alias MessageData =
+    { content : String
+    , authoredByUs : Bool
+    }
 
 
 init : ( Model, Effect Msg )
 init =
-    ( {}, Effect.none )
+    ( { messages = []
+      }
+    , Effect.none
+    )
 
 
 
@@ -52,7 +70,7 @@ update msg model =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.none
 
 
@@ -61,5 +79,13 @@ subscriptions model =
 
 
 view : Model -> View Msg
-view model =
-    View.placeholder "Rooms.Slug_"
+view _ =
+    { title = "vibe spam - room"
+    , body = layout
+    }
+
+
+layout : List (Html Msg)
+layout =
+    [ PageHeader.view
+    ]

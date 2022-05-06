@@ -39,7 +39,9 @@ createRoomMutation =
 
 roomSelection : SelectionSet RoomData Object.Room
 roomSelection =
-    SelectionSet.map RoomData Room.title
+    SelectionSet.map2 RoomData
+        Room.id
+        Room.title
 
 
 

@@ -12,7 +12,7 @@
   - [ ] add a table for chat messages
 - [ ] random meaningful room titles instead of uuids
   - [ ] generate these from a dictionary or something
-  - [ ] use the slugs in urls/api instead of ids
+  - [ ] use the slugs in urls instead of ids
 
 * Next
 - [ ] tests for lobby subscription
@@ -30,6 +30,7 @@
 - [ ] remove expect calls from pubsub?
   panicing might be right, but the joinhandle result has to be handled
   a decode error in a message the server sent to itself is a programmer error
+- [ ] pending state when adding a room
 
 * Someday
 - [ ] add a way to generate types from the local gql api

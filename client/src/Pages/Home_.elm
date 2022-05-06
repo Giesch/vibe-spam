@@ -4,9 +4,11 @@ import Api
 import Api.LobbyData exposing (LobbyData)
 import Api.RoomData exposing (RoomData)
 import Components.LobbyTable as LobbyTable
+import Components.PageHeader as PageHeader
 import Css
 import Effect exposing (Effect)
 import Gen.Params.Home_ exposing (Params)
+import Gen.Route as Route exposing (Route)
 import Html.Styled exposing (..)
 import Html.Styled.Attributes as Attrs exposing (css)
 import Json.Decode as Decode
@@ -14,8 +16,10 @@ import Page
 import Ports
 import Request
 import Shared
+import Shared.RouteHelpers as RouteHelpers
 import Shared.Session exposing (Session)
 import Tailwind.Utilities as Tw
+import VibeSpam.Scalar as Scalar exposing (Uuid)
 import View exposing (View)
 
 
@@ -109,15 +113,18 @@ view model =
 
 layout : Model -> List (Html Msg)
 layout model =
-    [ pageHeader
-    , main_ [ css [ Tw.flex_grow ] ]
-        [ case model.lobby of
-            Ok lobby ->
-                content lobby
+    let
+        mainContent =
+            case model.lobby of
+                Ok lobby ->
+                    content lobby
 
-            Err error ->
-                text ("Oops! Something went wrong: " ++ error)
-        ]
+                Err error ->
+                    text ("Oops! Something went wrong: " ++ error)
+    in
+    [ PageHeader.view
+    , main_ [ css [ Tw.flex_grow ] ]
+        [ mainContent ]
     ]
 
 
@@ -128,7 +135,7 @@ content lobby =
         toRoomRow room =
             { title = room.title
             , lastActivity = "2022 04 01"
-            , joinLink = "#"
+            , joinLink = RouteHelpers.rooms { slug = room.title }
             }
     in
     div [ css [ Tw.px_32, Tw.py_16 ] ]
@@ -139,29 +146,3 @@ content lobby =
                 }
             ]
         ]
-
-
-pageHeader : Html msg
-pageHeader =
-    let
-        headerStyles : List Css.Style
-        headerStyles =
-            [ Tw.bg_green_500
-            , Tw.text_white
-            , Tw.p_6
-            , Tw.flex
-            , Tw.items_end
-            , Tw.space_x_10
-            ]
-    in
-    header [ css headerStyles ]
-        [ div [ css [ Tw.text_2xl, Tw.font_bold, Tw.pr_12 ] ]
-            [ text "vibespam" ]
-        , tabLink { name = "lobby", href = "/" }
-        ]
-
-
-tabLink : { name : String, href : String } -> Html msg
-tabLink { name, href } =
-    a [ css [ Tw.text_lg ], Attrs.href href ]
-        [ text name ]
