@@ -1,10 +1,18 @@
 * Now
-- [ ] add chat room page
-  - [ ] decide to continue with elm or use bevy client for demo
+- [-] add chat room page
+  - [-] UI first, backend later
+    - [-] add route
+    - [ ] layout
+    - [ ] fake data
+  - [ ] subscription that returns fake initial data
+    return a 1-item stream
+  - [ ] add ability to send a message
+    - [ ] UI for choosing an emoji
   - [ ] use another dedicated redis conn for all chat messages?
   - [ ] add a table for chat messages
-  - [ ] if elm:
-    - [ ]
+- [ ] random meaningful room titles instead of uuids
+  - [ ] generate these from a dictionary or something
+  - [ ] use the slugs in urls/api instead of ids
 
 * Next
 - [ ] tests for lobby subscription
