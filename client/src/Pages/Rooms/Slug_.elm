@@ -88,4 +88,50 @@ view _ =
 layout : List (Html Msg)
 layout =
     [ PageHeader.view
+    , main_
+        [ css [ Tw.h_full, Tw.grid, Tw.grid_flow_row, Tw.grid_cols_6, Tw.grid_rows_1 ] ]
+        [ leftSection, rightSection ]
     ]
+
+
+leftSection : Html Msg
+leftSection =
+    section
+        [ css
+            [ Tw.col_span_1
+            , Tw.h_full
+            , Tw.flex
+            , Tw.flex_col_reverse
+            , Tw.bg_green_500
+            , Tw.text_white
+            , Tw.p_10
+            , Tw.text_lg
+            , Tw.font_bold
+            ]
+        ]
+        [ text "Room Title" ]
+
+
+rightSection : Html Msg
+rightSection =
+    section
+        [ css
+            [ Tw.col_span_5
+            , Tw.flex
+            , Tw.flex_col_reverse
+            ]
+        ]
+        [ viewMessage "Message 1"
+        , viewMessage "Message 2"
+        , viewMessage "Message 3"
+        ]
+
+
+viewMessage : String -> Html Msg
+viewMessage message =
+    div [ css [ Tw.w_full, Tw.p_6 ] ]
+        [ text message ]
+
+
+debug =
+    [ Tw.border_4, Tw.border_red_800 ]
