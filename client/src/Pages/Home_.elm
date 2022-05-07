@@ -112,7 +112,7 @@ subscriptions _ =
 
 view : Model -> View Msg
 view model =
-    { title = "vibe spam"
+    { title = "vibespam"
     , body = layout model
     }
 

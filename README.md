@@ -49,7 +49,6 @@ first, start the fly db proxy:
 
 ```sh
 flyctl proxy 5432 -a vibe-spam-postgres
-
 ```
 
 then, in another shell in this directory:

@@ -1,9 +1,11 @@
 * Now
 - [-] add chat room page
-  - [-] UI first, backend later
-    - [-] add route
-    - [ ] layout
-    - [ ] fake data
+  - [X] UI first, backend later
+    - [X] add route
+    - [X] layout
+    - [X] fake data
+      - [X] messages
+      - [X] buttons
   - [ ] subscription that returns fake initial data
     return a 1-item stream
   - [ ] add ability to send a message
@@ -13,6 +15,8 @@
 - [ ] random meaningful room titles instead of uuids
   - [ ] generate these from a dictionary or something
   - [ ] use the slugs in urls instead of ids
+- [ ] i ran the migrations against 'postgres' in prod - does that matter?
+  - this probably means the connection string is wrong? it was the default
 
 * Next
 - [ ] tests for lobby subscription

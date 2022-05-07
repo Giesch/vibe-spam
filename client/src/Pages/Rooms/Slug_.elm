@@ -6,6 +6,7 @@ module Pages.Rooms.Slug_ exposing
 
 import Components.PageHeader as PageHeader
 import Css exposing (Style)
+import Data.Emoji as Emoji exposing (Emoji)
 import Effect exposing (Effect)
 import Gen.Params.Rooms.Slug_ exposing (Params)
 import Html.Styled exposing (..)
@@ -13,14 +14,15 @@ import Html.Styled.Attributes as Attrs exposing (css)
 import Page
 import Request
 import Shared
+import Shared.Session as Session
 import Tailwind.Utilities as Tw
 import View exposing (View)
 
 
 page : Shared.Model -> Request.With Params -> Page.With Model Msg
-page _ _ =
+page shared req =
     Page.advanced
-        { init = init
+        { init = init shared req
         , update = update
         , view = view
         , subscriptions = subscriptions
@@ -33,21 +35,52 @@ page _ _ =
 
 type alias Model =
     { messages : List MessageData
+    , roomTitle : String
+    , sessionId : Maybe String
     }
 
 
+init : Shared.Model -> Request.With Params -> ( Model, Effect Msg )
+init shared req =
+    ( { messages = fakeMessages
+      , roomTitle = req.params.slug
+      , sessionId = Maybe.map Session.id shared.session
+      }
+    , Effect.none
+    )
+
+
 type alias MessageData =
-    { content : String
+    { emoji : Emoji
     , authorSessionId : String
     }
 
 
-init : ( Model, Effect Msg )
-init =
-    ( { messages = []
+type alias MessageView =
+    { content : String
+    , authorColor : Style
+    , alignment : Style
+    }
+
+
+fakeMessages : List MessageData
+fakeMessages =
+    -- TODO unexpose Emoji(..) after removing this
+    let
+        ourSessionId : String
+        ourSessionId =
+            "668adab3-356b-4556-9d39-00c17b8dc227"
+    in
+    [ { emoji = Emoji.SweatSmile
+      , authorSessionId = ourSessionId
       }
-    , Effect.none
-    )
+    , { emoji = Emoji.Smile
+      , authorSessionId = "theirSessionId"
+      }
+    , { emoji = Emoji.Heart
+      , authorSessionId = ourSessionId
+      }
+    ]
 
 
 
@@ -79,23 +112,23 @@ subscriptions _ =
 
 
 view : Model -> View Msg
-view _ =
-    { title = "vibe spam - room"
-    , body = layout
+view model =
+    { title = "vibespam | " ++ model.roomTitle
+    , body = layout model
     }
 
 
-layout : List (Html Msg)
-layout =
+layout : Model -> List (Html Msg)
+layout model =
     [ PageHeader.view
     , main_
         [ css [ Tw.h_full, Tw.grid, Tw.grid_flow_row, Tw.grid_cols_6, Tw.grid_rows_1 ] ]
-        [ leftSection, rightSection ]
+        [ leftSection model.roomTitle, rightSection model.sessionId model.messages ]
     ]
 
 
-leftSection : Html Msg
-leftSection =
+leftSection : String -> Html Msg
+leftSection roomTitle =
     section
         [ css
             [ Tw.col_span_1
@@ -109,24 +142,68 @@ leftSection =
             , Tw.font_bold
             ]
         ]
-        [ text "Room Title" ]
+        [ text roomTitle ]
 
 
-rightSection : Html Msg
-rightSection =
+rightSection : Maybe String -> List MessageData -> Html Msg
+rightSection sessionId messages =
+    let
+        messageViews : List (Html Msg)
+        messageViews =
+            List.reverse <| List.map (viewMessage sessionId) messages
+    in
     section [ css [ Tw.col_span_5, Tw.flex, Tw.flex_col_reverse ] ]
-        [ viewMessage "Message 1"
-        , viewMessage "Message 2"
-        , viewMessage "Message 3"
-        ]
+        (viewEmojiPanel :: messageViews)
 
 
-viewMessage : String -> Html Msg
-viewMessage message =
-    div [ css [ Tw.w_full, Tw.p_6 ] ]
-        [ text message ]
+viewMessage : Maybe String -> MessageData -> Html Msg
+viewMessage sessionId messageData =
+    let
+        content : String
+        content =
+            Emoji.toString messageData.emoji
+
+        authorStyles : List Style
+        authorStyles =
+            if sessionId == Just messageData.authorSessionId then
+                [ Tw.bg_green_100, Tw.text_left ]
+
+            else
+                [ Tw.bg_blue_100, Tw.text_right ]
+
+        bubbleStyles : List Style
+        bubbleStyles =
+            [ Tw.p_2, Tw.rounded, Tw.w_16 ] ++ authorStyles
+    in
+    div
+        [ css [ Tw.w_full, Tw.p_6 ] ]
+        [ div [ css bubbleStyles ] [ text content ] ]
 
 
-debug : List Style
-debug =
-    [ Tw.border_4, Tw.border_red_800 ]
+viewEmojiPanel : Html Msg
+viewEmojiPanel =
+    let
+        styles : List Style
+        styles =
+            [ Tw.flex
+            , Tw.flex_row
+            , Tw.border_t_2
+            , Tw.border_green_200
+            , Tw.px_4
+            , Tw.py_2
+            ]
+    in
+    div [ css styles ] <|
+        List.map viewEmojiButton emojiOptions
+
+
+emojiOptions : List String
+emojiOptions =
+    List.map Emoji.toString Emoji.all
+
+
+viewEmojiButton : String -> Html Msg
+viewEmojiButton emoji =
+    button
+        [ css [ Tw.px_2, Tw.py_1, Tw.mx_1 ] ]
+        [ text emoji ]
