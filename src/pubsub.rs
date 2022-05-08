@@ -11,6 +11,8 @@ use tokio::sync::{broadcast, watch};
 use tokio_stream::wrappers::{BroadcastStream, WatchStream};
 use uuid::Uuid;
 
+// TODO consider using flume instead of tokio streams/channels?
+
 use crate::schema::lobby;
 
 const REDIS_LOBBY_CHANNEL: &str = "vibe_spam:lobby";
@@ -27,6 +29,25 @@ pub struct RoomMessage {
     pub id: Uuid,
     pub title: String,
     pub created_at: DateTime<Utc>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct ChatMessage {
+    pub id: Uuid,
+    pub emoji: Emoji,
+    pub room_id: Uuid,
+    pub author_session_id: Uuid,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Serialize, Deserialize, Copy, Clone, Eq, PartialEq, Debug)]
+pub enum Emoji {
+    SweatSmile,
+    Smile,
+    Heart,
+    Crying,
+    UpsideDown,
+    Party,
 }
 
 #[derive(Debug, Clone)]
@@ -94,41 +115,25 @@ impl<'a> LobbyPublisher<'a> {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct ChatMessage {
-    id: Uuid,
-    emoji: Emoji,
-    room_id: Uuid,
-    author_session_id: Uuid,
-    updated_at: DateTime<Utc>,
-}
-
-#[derive(Serialize, Deserialize, Copy, Clone, Eq, PartialEq, Debug)]
-pub enum Emoji {
-    SweatSmile,
-    Smile,
-    Heart,
-    Crying,
-    UpsideDown,
-    Party,
-}
-
+#[derive(Debug)]
 pub struct ChatMessageSubscriber {
-    rx: broadcast::Receiver<Vec<ChatMessage>>,
+    tx: broadcast::Sender<Vec<ChatMessage>>,
 }
 
 impl ChatMessageSubscriber {
-    pub fn into_stream(self, room_id: Uuid) -> impl Stream<Item = Vec<ChatMessage>> {
-        BroadcastStream::new(self.rx).filter_map(move |new_messages| {
+    pub fn into_stream(&self, room_id: Uuid) -> impl Stream<Item = Vec<ChatMessage>> {
+        let rx = self.tx.subscribe();
+
+        BroadcastStream::new(rx).filter_map(move |new_messages| {
             // NOTE
-            // clone explanation:
+            // explanation for the clone:
             // https://users.rust-lang.org/t/cloning-variable-inside-of-an-async-move-block/40883/2
             // the 'ok' will drop missed messages if a subscriber falls too far behind:
             // https://docs.rs/tokio/latest/tokio/sync/broadcast/index.html#lagging
-            let new_messages = new_messages.ok().clone();
+            let maybe_new_messages = new_messages.ok().clone();
 
             async move {
-                match new_messages {
+                match maybe_new_messages {
                     Some(new_messages)
                         if !new_messages.is_empty() && new_messages[0].room_id == room_id =>
                     {
@@ -148,8 +153,9 @@ impl ChatMessageSubscriber {
             .context("failed to check out pubsub connection")?
             .into_pubsub();
 
-        let (tx, rx) = broadcast::channel(CHAT_MESSAGES_CHANNEL_CAPACITY);
+        let (tx, _rx) = broadcast::channel(CHAT_MESSAGES_CHANNEL_CAPACITY);
 
+        let producer = tx.clone();
         tokio::task::spawn(async move {
             pubsub
                 .subscribe(REDIS_CHAT_MESSAGES_CHANNEL)
@@ -164,11 +170,11 @@ impl ChatMessageSubscriber {
                 let new_messages: Vec<ChatMessage> = serde_json::from_str(&payload)
                     .expect("failed to parse chat message json from redis");
 
-                tx.send(new_messages).expect("failed to send lobby");
+                producer.send(new_messages).expect("failed to send lobby");
             }
         });
 
-        Ok(Self { rx })
+        Ok(Self { tx })
     }
 }
 

@@ -62,18 +62,22 @@ impl Subscription {
         room_id: Uuid,
     ) -> impl Stream<Item = Vec<ChatMessage>> {
         let db = ctx.db();
+        let chat_subscriber = ctx.chat_subscriber();
 
-        // TODO
-        // get first message is from a db query,
-        // then join that to a stream from the subscriber
-
+        // TODO get first message is from a db query,
         let initial_messages = vec![];
         let first = tokio_stream::once(initial_messages);
 
-        let rest = futures::stream::empty();
+        let rest = chat_subscriber
+            .into_stream(room_id)
+            .map(convert_new_messages);
 
         first.chain(rest)
     }
+}
+
+fn convert_new_messages(new_messages: Vec<pubsub::ChatMessage>) -> Vec<ChatMessage> {
+    new_messages.into_iter().map(Into::into).collect()
 }
 
 #[derive(SimpleObject, Serialize, Debug)]
@@ -85,6 +89,18 @@ pub struct ChatMessage {
     updated_at: DateTime<Utc>,
 }
 
+impl From<pubsub::ChatMessage> for ChatMessage {
+    fn from(chat_message: pubsub::ChatMessage) -> Self {
+        Self {
+            id: chat_message.id,
+            emoji: chat_message.emoji.into(),
+            room_id: chat_message.room_id,
+            author_session_id: chat_message.author_session_id,
+            updated_at: chat_message.updated_at,
+        }
+    }
+}
+
 #[derive(Enum, Serialize, Copy, Clone, Eq, PartialEq, Debug)]
 pub enum Emoji {
     SweatSmile,
@@ -93,6 +109,19 @@ pub enum Emoji {
     Crying,
     UpsideDown,
     Party,
+}
+
+impl From<pubsub::Emoji> for Emoji {
+    fn from(emoji: pubsub::Emoji) -> Self {
+        match emoji {
+            pubsub::Emoji::SweatSmile => Emoji::SweatSmile,
+            pubsub::Emoji::Smile => Emoji::Smile,
+            pubsub::Emoji::Heart => Emoji::Heart,
+            pubsub::Emoji::Crying => Emoji::Crying,
+            pubsub::Emoji::UpsideDown => Emoji::UpsideDown,
+            pubsub::Emoji::Party => Emoji::Party,
+        }
+    }
 }
 
 #[derive(SimpleObject, Serialize, Debug)]
@@ -186,6 +215,8 @@ trait VibeSpamContext {
     async fn lobby_publisher(&self) -> anyhow::Result<LobbyPublisher>;
 
     fn lobby_subscriber(&self) -> LobbySubscriber;
+
+    fn chat_subscriber(&self) -> &ChatMessageSubscriber;
 }
 
 #[async_trait]
@@ -215,5 +246,9 @@ impl<'ctx> VibeSpamContext for Context<'ctx> {
 
     fn lobby_subscriber(&self) -> LobbySubscriber {
         self.data_unchecked::<LobbySubscriber>().clone()
+    }
+
+    fn chat_subscriber(&self) -> &ChatMessageSubscriber {
+        self.data_unchecked::<ChatMessageSubscriber>()
     }
 }
