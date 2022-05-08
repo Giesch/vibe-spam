@@ -7,8 +7,8 @@ use futures::StreamExt;
 use futures_core::stream::Stream;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
-use tokio::sync::watch::{self, Receiver};
-use tokio_stream::wrappers::WatchStream;
+use tokio::sync::{broadcast, watch};
+use tokio_stream::wrappers::{BroadcastStream, WatchStream};
 use uuid::Uuid;
 
 use crate::schema::lobby;
@@ -28,16 +28,16 @@ pub struct RoomMessage {
 }
 
 #[derive(Debug, Clone)]
-pub struct LobbyWatcher {
-    rx: Receiver<LobbyMessage>,
+pub struct LobbySubscriber {
+    rx: watch::Receiver<LobbyMessage>,
 }
 
-impl LobbyWatcher {
+impl LobbySubscriber {
     pub fn into_stream(self) -> impl Stream<Item = LobbyMessage> {
         WatchStream::new(self.rx)
     }
 
-    #[tracing::instrument(name = "spawn lobby watcher")]
+    #[tracing::instrument(name = "spawn lobby subscriber")]
     pub async fn spawn(redis: &Pool<RedisConnectionManager>, db: &PgPool) -> anyhow::Result<Self> {
         let mut pubsub = Pool::dedicated_connection(redis)
             .await
@@ -56,7 +56,7 @@ impl LobbyWatcher {
             while let Some(result) = pubsub.on_message().next().await {
                 let payload = result
                     .get_payload::<String>()
-                    .expect("failed to get string payload");
+                    .expect("failed to get string lobby payload");
 
                 let lobby =
                     serde_json::from_str(&payload).expect("failed to parse lobby json from redis");
@@ -65,7 +65,7 @@ impl LobbyWatcher {
             }
         });
 
-        Ok(LobbyWatcher { rx })
+        Ok(LobbySubscriber { rx })
     }
 }
 
@@ -90,4 +90,64 @@ impl<'a> LobbyPublisher<'a> {
 
         Ok(())
     }
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct ChatMessage {
+    id: Uuid,
+    emoji: Emoji,
+    room_id: Uuid,
+    author_session_id: Uuid,
+    updated_at: DateTime<Utc>,
+}
+
+#[derive(Serialize, Deserialize, Copy, Clone, Eq, PartialEq, Debug)]
+pub enum Emoji {
+    SweatSmile,
+    Smile,
+    Heart,
+    Crying,
+    UpsideDown,
+    Party,
+}
+
+// TODO this needs to listen to all chats on the redis channel
+// should this also use a watcher?
+// ie, adding a message inserts the row, and publishes a new latest n messages?
+// this would mean that the server has to keep a cache of all the ongoing chats
+// but is that kind of true anyway?
+//
+// could have it be a 'watch' of all rooms, and then map over the streams
+//
+// does it make sense to actually hold on to all of this?
+// it seems like there should be a way to do this with less memory w/broadcast
+// tokio broadcast rx filter?
+pub struct ChatMessageSubscriber {
+    rx: broadcast::Receiver<Vec<ChatMessage>>,
+}
+
+impl ChatMessageSubscriber {
+    pub fn into_stream(self, room_id: Uuid) -> impl Stream<Item = Vec<ChatMessage>> {
+        BroadcastStream::new(self.rx).filter_map(move |new_messages| {
+            // clone explanation:
+            // https://users.rust-lang.org/t/cloning-variable-inside-of-an-async-move-block/40883/2
+            // NOTE the unwrap will drop missed messages if a subscriber falls behind
+            let new_messages = new_messages.unwrap_or_default().clone();
+
+            async move {
+                let empty = new_messages.is_empty();
+                let other_room = new_messages[0].room_id != room_id;
+
+                if empty || other_room {
+                    None
+                } else {
+                    Some(new_messages)
+                }
+            }
+        })
+    }
+
+    // pub async fn spawn(redis: &Pool<RedisConnectionManager>, db: &PgPool) -> anyhow::Result<Self> {
+    //     // TODO
+    // }
 }

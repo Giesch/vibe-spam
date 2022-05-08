@@ -3,8 +3,6 @@ module Pages.Home_ exposing (Model, Msg, page)
 import Api
 import Api.LobbyData exposing (LobbyData)
 import Api.RoomData exposing (RoomData)
-import Components.LobbyTable as LobbyTable
-import Components.PageHeader as PageHeader
 import Css
 import Effect exposing (Effect)
 import Gen.Params.Home_ exposing (Params)
@@ -21,6 +19,8 @@ import Shared.Session exposing (Session)
 import Tailwind.Utilities as Tw
 import VibeSpam.Scalar as Scalar exposing (Uuid)
 import View exposing (View)
+import Views.LobbyTable as LobbyTable
+import Views.PageHeader as PageHeader
 
 
 page : Shared.Model -> Request.With Params -> Page.With Model Msg

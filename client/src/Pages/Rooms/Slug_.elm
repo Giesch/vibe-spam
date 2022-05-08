@@ -4,7 +4,6 @@ module Pages.Rooms.Slug_ exposing
     , page
     )
 
-import Components.PageHeader as PageHeader
 import Css exposing (Style)
 import Data.Emoji as Emoji exposing (Emoji)
 import Effect exposing (Effect)
@@ -17,6 +16,7 @@ import Shared
 import Shared.Session as Session
 import Tailwind.Utilities as Tw
 import View exposing (View)
+import Views.PageHeader as PageHeader
 
 
 page : Shared.Model -> Request.With Params -> Page.With Model Msg

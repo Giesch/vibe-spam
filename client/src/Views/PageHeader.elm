@@ -1,4 +1,4 @@
-module Components.PageHeader exposing (view)
+module Views.PageHeader exposing (view)
 
 import Css
 import Html.Styled exposing (..)

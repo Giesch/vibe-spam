@@ -1,4 +1,9 @@
 * Now
+- [-] add a way to generate types from the local gql api
+  - [X] add script
+  - [X] try the script
+  - [ ] run ci elm build against both prod gql and branch gql
+
 - [-] add chat room page
   - [X] UI first, backend later
     - [X] add route
@@ -8,6 +13,7 @@
       - [X] buttons
   - [ ] subscription that returns fake initial data
     return a 1-item stream
+
   - [ ] add ability to send a message
     - [ ] UI for choosing an emoji
   - [ ] use another dedicated redis conn for all chat messages?
@@ -37,8 +43,6 @@
 - [ ] pending state when adding a room
 
 * Someday
-- [ ] add a way to generate types from the local gql api
-  - [ ] run ci elm build against both prod gql and branch gql
 - [ ] make the axum fallback route in local dev point back to vite server
 - [ ] use elm-ts-interop for ports
   convert main.js to ts? does vite make this easy?

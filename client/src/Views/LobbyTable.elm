@@ -1,4 +1,4 @@
-module Components.LobbyTable exposing
+module Views.LobbyTable exposing
     ( Config
     , RoomRow
     , view

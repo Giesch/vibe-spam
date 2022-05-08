@@ -1,9 +1,12 @@
 module Data.Emoji exposing
     ( Emoji(..)
     , all
+    , fromGraphql
     , fromString
     , toString
     )
+
+import VibeSpam.Enum.Emoji as Gql
 
 
 type Emoji
@@ -13,6 +16,39 @@ type Emoji
     | Crying
     | UpsideDown
     | Party
+
+
+fromGraphql : Gql.Emoji -> Emoji
+fromGraphql gqlEmoji =
+    case gqlEmoji of
+        Gql.SweatSmile ->
+            SweatSmile
+
+        Gql.Smile ->
+            Smile
+
+        Gql.Heart ->
+            Heart
+
+        Gql.Crying ->
+            Crying
+
+        Gql.UpsideDown ->
+            UpsideDown
+
+        Gql.Party ->
+            Party
+
+
+fromString : String -> Maybe Emoji
+fromString str =
+    let
+        matches : Emoji -> Bool
+        matches emoji =
+            str == toString emoji
+    in
+    List.filter matches all
+        |> List.head
 
 
 toString : Emoji -> String
@@ -37,19 +73,9 @@ toString emoji =
             "🥳"
 
 
-fromString : String -> Maybe Emoji
-fromString str =
-    let
-        matches : Emoji -> Bool
-        matches emoji =
-            str == toString emoji
-    in
-    List.filter matches all
-        |> List.head
-
-
 all : List Emoji
 all =
+    -- TODO lint rule for 'all'
     [ SweatSmile
     , Smile
     , Heart

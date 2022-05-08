@@ -1,4 +1,4 @@
-use crate::pubsub::LobbyWatcher;
+use crate::pubsub::LobbySubscriber;
 use crate::routes;
 use crate::{schema, settings::Settings};
 
@@ -41,13 +41,18 @@ impl App {
             .await
             .context("failed to create redis pool")?;
 
-        let lobby_watcher = LobbyWatcher::spawn(&redis, &db)
+        let lobby_subscriber = LobbySubscriber::spawn(&redis, &db)
             .await
-            .context("failed to spawn initial lobby watcher")?;
+            .context("failed to spawn initial lobby subscriber")?;
 
         let settings = Arc::new(settings);
 
-        let schema = schema::new(db.clone(), redis.clone(), lobby_watcher, settings.clone());
+        let schema = schema::new(
+            db.clone(),
+            redis.clone(),
+            lobby_subscriber,
+            settings.clone(),
+        );
         let router = routes::make_router(schema, db, redis, settings)?;
         let server = axum::Server::from_tcp(listener)?.serve(router.into_make_service());
 

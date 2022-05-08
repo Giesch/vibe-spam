@@ -1,16 +1,16 @@
 use sqlx::PgPool;
 
 use super::lobby_repo;
-use super::{LobbyResponse, Room};
+use super::{Lobby, Room};
 use crate::pubsub::{self, LobbyPublisher};
 use crate::settings::Settings;
 
 #[tracing::instrument(name = "lobby fetch")]
-pub async fn fetch(db: &PgPool) -> anyhow::Result<LobbyResponse> {
+pub async fn fetch(db: &PgPool) -> anyhow::Result<Lobby> {
     let room_rows = lobby_repo::list_rooms(db).await?;
     let rooms: Vec<Room> = room_rows.into_iter().map(Into::into).collect();
 
-    Ok(LobbyResponse { rooms })
+    Ok(Lobby { rooms })
 }
 
 #[tracing::instrument(name = "create room", skip(lobby_publisher))]
