@@ -14,6 +14,8 @@ use uuid::Uuid;
 use crate::schema::lobby;
 
 const REDIS_LOBBY_CHANNEL: &str = "vibe_spam:lobby";
+const REDIS_CHAT_MESSAGES_CHANNEL: &str = "vibe_spam:chat_messages";
+const CHAT_MESSAGES_CHANNEL_CAPACITY: usize = 20;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct LobbyMessage {
@@ -58,14 +60,14 @@ impl LobbySubscriber {
                     .get_payload::<String>()
                     .expect("failed to get string lobby payload");
 
-                let lobby =
+                let lobby: LobbyMessage =
                     serde_json::from_str(&payload).expect("failed to parse lobby json from redis");
 
                 tx.send(lobby).expect("failed to send lobby");
             }
         });
 
-        Ok(LobbySubscriber { rx })
+        Ok(Self { rx })
     }
 }
 
@@ -75,7 +77,7 @@ pub struct LobbyPublisher<'a> {
 
 impl<'a> LobbyPublisher<'a> {
     pub fn new(redis: PooledConnection<'a, RedisConnectionManager>) -> Self {
-        LobbyPublisher { redis }
+        Self { redis }
     }
 
     #[tracing::instrument(name = "lobby publish", skip(self))]
@@ -111,17 +113,6 @@ pub enum Emoji {
     Party,
 }
 
-// TODO this needs to listen to all chats on the redis channel
-// should this also use a watcher?
-// ie, adding a message inserts the row, and publishes a new latest n messages?
-// this would mean that the server has to keep a cache of all the ongoing chats
-// but is that kind of true anyway?
-//
-// could have it be a 'watch' of all rooms, and then map over the streams
-//
-// does it make sense to actually hold on to all of this?
-// it seems like there should be a way to do this with less memory w/broadcast
-// tokio broadcast rx filter?
 pub struct ChatMessageSubscriber {
     rx: broadcast::Receiver<Vec<ChatMessage>>,
 }
@@ -129,25 +120,77 @@ pub struct ChatMessageSubscriber {
 impl ChatMessageSubscriber {
     pub fn into_stream(self, room_id: Uuid) -> impl Stream<Item = Vec<ChatMessage>> {
         BroadcastStream::new(self.rx).filter_map(move |new_messages| {
+            // NOTE
             // clone explanation:
             // https://users.rust-lang.org/t/cloning-variable-inside-of-an-async-move-block/40883/2
-            // NOTE the unwrap will drop missed messages if a subscriber falls behind
-            let new_messages = new_messages.unwrap_or_default().clone();
+            // the 'ok' will drop missed messages if a subscriber falls too far behind:
+            // https://docs.rs/tokio/latest/tokio/sync/broadcast/index.html#lagging
+            let new_messages = new_messages.ok().clone();
 
             async move {
-                let empty = new_messages.is_empty();
-                let other_room = new_messages[0].room_id != room_id;
-
-                if empty || other_room {
-                    None
-                } else {
+                match new_messages {
                     Some(new_messages)
+                        if !new_messages.is_empty() && new_messages[0].room_id == room_id =>
+                    {
+                        Some(new_messages)
+                    }
+
+                    _ => None,
                 }
             }
         })
     }
 
-    // pub async fn spawn(redis: &Pool<RedisConnectionManager>, db: &PgPool) -> anyhow::Result<Self> {
-    //     // TODO
-    // }
+    #[tracing::instrument(name = "spawn chat room subscriber")]
+    pub async fn spawn(redis: &Pool<RedisConnectionManager>) -> anyhow::Result<Self> {
+        let mut pubsub = Pool::dedicated_connection(redis)
+            .await
+            .context("failed to check out pubsub connection")?
+            .into_pubsub();
+
+        let (tx, rx) = broadcast::channel(CHAT_MESSAGES_CHANNEL_CAPACITY);
+
+        tokio::task::spawn(async move {
+            pubsub
+                .subscribe(REDIS_CHAT_MESSAGES_CHANNEL)
+                .await
+                .expect("failed to subscribe to lobby channel");
+
+            while let Some(result) = pubsub.on_message().next().await {
+                let payload = result
+                    .get_payload::<String>()
+                    .expect("failed to get string lobby payload");
+
+                let new_messages: Vec<ChatMessage> = serde_json::from_str(&payload)
+                    .expect("failed to parse chat message json from redis");
+
+                tx.send(new_messages).expect("failed to send lobby");
+            }
+        });
+
+        Ok(Self { rx })
+    }
+}
+
+pub struct ChatMessagePublisher<'a> {
+    redis: PooledConnection<'a, RedisConnectionManager>,
+}
+
+impl<'a> ChatMessagePublisher<'a> {
+    pub fn new(redis: PooledConnection<'a, RedisConnectionManager>) -> Self {
+        Self { redis }
+    }
+
+    #[tracing::instrument(name = "lobby publish", skip(self))]
+    pub async fn publish(&mut self, new_messages: Vec<ChatMessage>) -> anyhow::Result<()> {
+        let json = serde_json::to_string(&new_messages)?;
+
+        let _result = self
+            .redis
+            .publish(REDIS_CHAT_MESSAGES_CHANNEL, json)
+            .await
+            .context("failed to publish new chat messages")?;
+
+        Ok(())
+    }
 }
