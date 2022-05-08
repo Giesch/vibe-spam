@@ -1,8 +1,13 @@
 * Now
+- [ ] finish adding chat messages
+  - [ ] migration for chat messages table
+  - [ ] add chat_repo queries
+
 - [-] add a way to generate types from the local gql api
   - [X] add script
   - [X] try the script
   - [ ] run ci elm build against both prod gql and branch gql
+
 
 - [-] add chat room page
   - [X] UI first, backend later
@@ -11,16 +16,17 @@
     - [X] fake data
       - [X] messages
       - [X] buttons
-  - [ ] subscription that returns fake initial data
-    return a 1-item stream
+  # - [ ] subscription that returns fake initial data
+  #   return a 1-item stream
 
   - [ ] add ability to send a message
-    - [ ] UI for choosing an emoji
-  - [ ] use another dedicated redis conn for all chat messages?
-  - [ ] add a table for chat messages
-- [ ] random meaningful room titles instead of uuids
-  - [ ] generate these from a dictionary or something
+    # - [ ] UI for choosing an emoji
+  - [X] use another dedicated redis conn for all chat messages?
+  # - [ ] add a table for chat messages
+- [-] random meaningful room titles instead of uuids
+  - [X] generate these from a dictionary or something
   - [ ] use the slugs in urls instead of ids
+  - [ ] make the dictionary larger
 - [ ] i ran the migrations against 'postgres' in prod - does that matter?
   - this probably means the connection string is wrong? it was the default
 
@@ -56,6 +62,7 @@
   scripts include calls to 'npm ci'
 - [ ] use structured build config:
   https://github.com/MattCheely/elm-build-config
+- [ ] consider using flume instead of tokio broadcast
 
 * Other
 - [-] catch up reading z2p

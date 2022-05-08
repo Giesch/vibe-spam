@@ -11,9 +11,8 @@ use tokio::sync::{broadcast, watch};
 use tokio_stream::wrappers::{BroadcastStream, WatchStream};
 use uuid::Uuid;
 
-// TODO consider using flume instead of tokio streams/channels?
-
 use crate::schema::lobby;
+use crate::schema::ChatMessage;
 
 const REDIS_LOBBY_CHANNEL: &str = "vibe_spam:lobby";
 const REDIS_CHAT_MESSAGES_CHANNEL: &str = "vibe_spam:chat_messages";
@@ -29,25 +28,6 @@ pub struct RoomMessage {
     pub id: Uuid,
     pub title: String,
     pub created_at: DateTime<Utc>,
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct ChatMessage {
-    pub id: Uuid,
-    pub emoji: Emoji,
-    pub room_id: Uuid,
-    pub author_session_id: Uuid,
-    pub updated_at: DateTime<Utc>,
-}
-
-#[derive(Serialize, Deserialize, Copy, Clone, Eq, PartialEq, Debug)]
-pub enum Emoji {
-    SweatSmile,
-    Smile,
-    Heart,
-    Crying,
-    UpsideDown,
-    Party,
 }
 
 #[derive(Debug, Clone)]
@@ -121,7 +101,7 @@ pub struct ChatMessageSubscriber {
 }
 
 impl ChatMessageSubscriber {
-    pub fn into_stream(&self, room_id: Uuid) -> impl Stream<Item = Vec<ChatMessage>> {
+    pub fn room_stream(&self, room_id: Uuid) -> impl Stream<Item = Vec<ChatMessage>> {
         let rx = self.tx.subscribe();
 
         BroadcastStream::new(rx).filter_map(move |new_messages| {
@@ -133,15 +113,9 @@ impl ChatMessageSubscriber {
             let maybe_new_messages = new_messages.ok().clone();
 
             async move {
-                match maybe_new_messages {
-                    Some(new_messages)
-                        if !new_messages.is_empty() && new_messages[0].room_id == room_id =>
-                    {
-                        Some(new_messages)
-                    }
-
-                    _ => None,
-                }
+                maybe_new_messages.filter(|new_messages| {
+                    !new_messages.is_empty() && new_messages[0].room_id == room_id
+                })
             }
         })
     }

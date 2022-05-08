@@ -7,9 +7,9 @@ use bb8_redis::RedisConnectionManager;
 use chrono::{DateTime, Utc};
 use futures::StreamExt;
 use futures_core::stream::Stream;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
-use std::sync::Arc;
+use std::{str::FromStr, sync::Arc};
 use uuid::Uuid;
 
 use crate::{
@@ -17,6 +17,8 @@ use crate::{
     settings::Settings,
 };
 
+pub mod chat;
+mod chat_repo;
 pub mod lobby;
 mod lobby_repo;
 
@@ -64,44 +66,37 @@ impl Subscription {
         let db = ctx.db();
         let chat_subscriber = ctx.chat_subscriber();
 
-        // TODO get first message is from a db query,
-        let initial_messages = vec![];
-        let first = tokio_stream::once(initial_messages);
+        let initial_messages = chat_repo::list_messages(db, room_id)
+            .await
+            .and_then(convert_message_rows)
+            .unwrap_or_else(|err| {
+                tracing::error!("failed to list chat messages: {err}");
+                Vec::new()
+            });
 
-        let rest = chat_subscriber
-            .into_stream(room_id)
-            .map(convert_new_messages);
+        let first = tokio_stream::once(initial_messages);
+        let rest = chat_subscriber.room_stream(room_id);
 
         first.chain(rest)
     }
 }
 
-fn convert_new_messages(new_messages: Vec<pubsub::ChatMessage>) -> Vec<ChatMessage> {
-    new_messages.into_iter().map(Into::into).collect()
+fn convert_message_rows(rows: Vec<chat_repo::ChatMessageRow>) -> anyhow::Result<Vec<ChatMessage>> {
+    rows.into_iter().map(TryInto::try_into).collect()
 }
 
-#[derive(SimpleObject, Serialize, Debug)]
+// NOTE, this is also used for serializing to redis
+#[derive(SimpleObject, Debug, Clone, Serialize, Deserialize)]
 pub struct ChatMessage {
-    id: Uuid,
-    emoji: Emoji,
-    room_id: Uuid,
-    author_session_id: Uuid,
-    updated_at: DateTime<Utc>,
+    pub id: Uuid,
+    pub emoji: Emoji,
+    pub room_id: Uuid,
+    pub author_session_id: Uuid,
+    pub updated_at: DateTime<Utc>,
 }
 
-impl From<pubsub::ChatMessage> for ChatMessage {
-    fn from(chat_message: pubsub::ChatMessage) -> Self {
-        Self {
-            id: chat_message.id,
-            emoji: chat_message.emoji.into(),
-            room_id: chat_message.room_id,
-            author_session_id: chat_message.author_session_id,
-            updated_at: chat_message.updated_at,
-        }
-    }
-}
-
-#[derive(Enum, Serialize, Copy, Clone, Eq, PartialEq, Debug)]
+// NOTE, this is also used for serializing to redis
+#[derive(Enum, Copy, Clone, Eq, PartialEq, Debug, Serialize, Deserialize)]
 pub enum Emoji {
     SweatSmile,
     Smile,
@@ -111,18 +106,31 @@ pub enum Emoji {
     Party,
 }
 
-impl From<pubsub::Emoji> for Emoji {
-    fn from(emoji: pubsub::Emoji) -> Self {
-        match emoji {
-            pubsub::Emoji::SweatSmile => Emoji::SweatSmile,
-            pubsub::Emoji::Smile => Emoji::Smile,
-            pubsub::Emoji::Heart => Emoji::Heart,
-            pubsub::Emoji::Crying => Emoji::Crying,
-            pubsub::Emoji::UpsideDown => Emoji::UpsideDown,
-            pubsub::Emoji::Party => Emoji::Party,
+impl Emoji {
+    pub fn to_str(&self) -> &str {
+        match self {
+            Emoji::SweatSmile => "😅",
+            Emoji::Smile => "😊",
+            Emoji::Heart => "❤️",
+            Emoji::Crying => "😭",
+            Emoji::UpsideDown => "🙃",
+            Emoji::Party => "🥳",
         }
     }
+
+    pub fn from_str(s: &str) -> Option<Self> {
+        ALL_EMOJI.iter().find(|emoji| emoji.to_str() == s).copied()
+    }
 }
+
+const ALL_EMOJI: [Emoji; 6] = [
+    Emoji::SweatSmile,
+    Emoji::Smile,
+    Emoji::Heart,
+    Emoji::Crying,
+    Emoji::UpsideDown,
+    Emoji::Party,
+];
 
 #[derive(SimpleObject, Serialize, Debug)]
 pub struct Lobby {
