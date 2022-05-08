@@ -13,7 +13,7 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::{
-    pubsub::{self, LobbyPublisher, LobbySubscriber},
+    pubsub::{self, ChatMessageSubscriber, LobbyPublisher, LobbySubscriber},
     settings::Settings,
 };
 
@@ -159,12 +159,14 @@ pub fn new(
     db: PgPool,
     redis: Pool<RedisConnectionManager>,
     lobby_subscriber: LobbySubscriber,
+    chat_subscriber: ChatMessageSubscriber,
     settings: Arc<Settings>,
 ) -> VibeSpam {
     Schema::build(Query, Mutation, Subscription)
         .data(db)
         .data(redis)
         .data(lobby_subscriber)
+        .data(chat_subscriber)
         .data(settings)
         .finish()
 }

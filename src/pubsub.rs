@@ -40,8 +40,8 @@ impl LobbySubscriber {
     }
 
     #[tracing::instrument(name = "spawn lobby subscriber")]
-    pub async fn spawn(redis: &Pool<RedisConnectionManager>, db: &PgPool) -> anyhow::Result<Self> {
-        let mut pubsub = Pool::dedicated_connection(redis)
+    pub async fn spawn(redis: Pool<RedisConnectionManager>, db: &PgPool) -> anyhow::Result<Self> {
+        let mut pubsub = Pool::dedicated_connection(&redis)
             .await
             .context("failed to check out pubsub connection")?
             .into_pubsub();
@@ -142,8 +142,8 @@ impl ChatMessageSubscriber {
     }
 
     #[tracing::instrument(name = "spawn chat room subscriber")]
-    pub async fn spawn(redis: &Pool<RedisConnectionManager>) -> anyhow::Result<Self> {
-        let mut pubsub = Pool::dedicated_connection(redis)
+    pub async fn spawn(redis: Pool<RedisConnectionManager>) -> anyhow::Result<Self> {
+        let mut pubsub = Pool::dedicated_connection(&redis)
             .await
             .context("failed to check out pubsub connection")?
             .into_pubsub();
