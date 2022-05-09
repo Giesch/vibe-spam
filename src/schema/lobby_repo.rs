@@ -39,5 +39,5 @@ pub async fn create_room(db: &PgPool, title: String) -> anyhow::Result<RoomRow> 
     )
     .fetch_one(db)
     .await
-    .context("failed to create rooms")
+    .context("failed to insert room")
 }

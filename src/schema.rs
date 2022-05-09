@@ -9,7 +9,7 @@ use futures::StreamExt;
 use futures_core::stream::Stream;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
-use std::{str::FromStr, sync::Arc};
+use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::{

@@ -3,8 +3,6 @@ use chrono::{DateTime, Utc};
 use sqlx::PgPool;
 use uuid::Uuid;
 
-const MESSAGE_QUERY_LIMIT: usize = 50;
-
 pub struct ChatMessageRow {
     pub id: Uuid,
     pub room_id: Uuid,
@@ -24,7 +22,18 @@ pub struct NewMessage {
 
 #[tracing::instrument(name = "list chat messages query")]
 pub async fn list_messages(db: &PgPool, room_id: Uuid) -> anyhow::Result<Vec<ChatMessageRow>> {
-    todo!()
+    sqlx::query_as!(
+        ChatMessageRow,
+        r#"
+            SELECT *
+            FROM chat_messages
+            ORDER BY created_at DESC
+            LIMIT 50
+        "#
+    )
+    .fetch_all(db)
+    .await
+    .context("failed to list chat messages")
 }
 
 #[tracing::instrument(name = "create chat message query")]
@@ -32,5 +41,17 @@ pub async fn create_message(
     db: &PgPool,
     new_message: NewMessage,
 ) -> anyhow::Result<ChatMessageRow> {
-    todo!()
+    sqlx::query_as!(
+        ChatMessageRow,
+        r#"
+            INSERT INTO chat_messages (room_id, author_session_id, content)
+            VALUES ($1, $2, $3) RETURNING *
+        "#,
+        new_message.room_id,
+        new_message.author_session_id,
+        new_message.content
+    )
+    .fetch_one(db)
+    .await
+    .context("failed to insert chat message")
 }
