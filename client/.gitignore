@@ -11,3 +11,5 @@ dist
 # swappable configuration
 .config
 .env
+
+schema.graphql
