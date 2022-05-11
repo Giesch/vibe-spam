@@ -233,9 +233,6 @@ jobs:
             target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
-      - run: npm run api:local
-        working-directory: client
-
       - run: npm run build:github
         working-directory: client
 

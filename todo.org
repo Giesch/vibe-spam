@@ -1,4 +1,7 @@
 * Now
+- [ ] add a way to generate local gql api
+  - [ ] use that for ci
+  - [ ] make the prod one optional in CI
 - [X] fix new room button
 - [ ] fix insecure websocket
 
