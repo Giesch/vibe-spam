@@ -3,6 +3,14 @@ name = "vibe-spam"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+name = "vibe-spam"
+path = "src/main.rs"
+
+[[bin]]
+name = "gen-schema"
+path = "src/gen_schema.rs"
+
 [dependencies]
 anyhow = "1.0.56"
 askama = { version = "0.11.1", features = ["with-axum"] }

@@ -127,6 +127,10 @@ pub fn new(
         .finish()
 }
 
+pub fn sdl() -> String {
+    Schema::build(Query, Mutation, Subscription).finish().sdl()
+}
+
 #[async_trait]
 trait VibeSpamContext {
     fn db(&self) -> &PgPool;
