@@ -1,34 +1,7 @@
 * Now
-- [ ] finish adding chat messages
-  - [ ] migration for chat messages table
-  - [ ] add chat_repo queries
-
-- [-] add a way to generate types from the local gql api
-  - [X] add script
-  - [X] try the script
-  - [ ] run ci elm build against both prod gql and branch gql
-
-
-- [-] add chat room page
-  - [X] UI first, backend later
-    - [X] add route
-    - [X] layout
-    - [X] fake data
-      - [X] messages
-      - [X] buttons
-  # - [ ] subscription that returns fake initial data
-  #   return a 1-item stream
-
-  - [ ] add ability to send a message
-    # - [ ] UI for choosing an emoji
-  - [X] use another dedicated redis conn for all chat messages?
-  # - [ ] add a table for chat messages
-- [-] random meaningful room titles instead of uuids
-  - [X] generate these from a dictionary or something
-  - [ ] use the slugs in urls instead of ids
-  - [ ] make the dictionary larger
-- [ ] i ran the migrations against 'postgres' in prod - does that matter?
-  - this probably means the connection string is wrong? it was the default
+- [ ] add FE chat subscription
+  - [ ] start on page load
+- [ ] add FE chat mutation (add a message)
 
 * Next
 - [ ] tests for lobby subscription
@@ -47,6 +20,7 @@
   panicing might be right, but the joinhandle result has to be handled
   a decode error in a message the server sent to itself is a programmer error
 - [ ] pending state when adding a room
+- [ ] make the random room name dictionary larger
 
 * Someday
 - [ ] make the axum fallback route in local dev point back to vite server
@@ -63,6 +37,7 @@
 - [ ] use structured build config:
   https://github.com/MattCheely/elm-build-config
 - [ ] consider using flume instead of tokio broadcast
+- [ ] run ci elm build against both prod gql and branch gql
 
 * Other
 - [-] catch up reading z2p
@@ -72,3 +47,7 @@
   - [ ] add elm review emacs setup (or switch to intellij?)
   - [ ] investigate elm-pair emacs setup
 - [ ] use ints for times in json instead of DateTime?
+
+* Next Time
+- don't use elm-tailwind-modules, it'll never get on TW 3.0
+- use a configured default app database in prod instead of 'postgres'
