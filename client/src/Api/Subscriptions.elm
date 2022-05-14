@@ -10,9 +10,9 @@ import Graphql.Operation exposing (RootSubscription)
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet)
 import Json.Decode exposing (Decoder)
 import VibeSpam.Object as Object
-import VibeSpam.Object.LobbyResponse as LobbyResponse
+import VibeSpam.Object.Lobby as Lobby
 import VibeSpam.Object.Room as Room
-import VibeSpam.ScalarCodecs as ScalarCodecs exposing (Uuid)
+import VibeSpam.ScalarCodecs exposing (Uuid)
 import VibeSpam.Subscription as Subscription
 
 
@@ -31,10 +31,9 @@ lobbyUpdatesDocument =
     Graphql.Document.serializeSubscription lobbyUpdates
 
 
-lobbySelection : SelectionSet LobbyData Object.LobbyResponse
+lobbySelection : SelectionSet LobbyData Object.Lobby
 lobbySelection =
-    SelectionSet.map LobbyData
-        (LobbyResponse.rooms roomSelection)
+    SelectionSet.map LobbyData (Lobby.rooms roomSelection)
 
 
 roomSelection : SelectionSet RoomData Object.Room
