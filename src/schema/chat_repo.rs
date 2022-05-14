@@ -27,7 +27,6 @@ pub struct RoomRow {
     pub updated_at: DateTime<Utc>,
 }
 
-#[allow(clippy::panic)]
 #[tracing::instrument(name = "find room by title query")]
 pub async fn find_room_by_title(db: &PgPool, room_title: String) -> anyhow::Result<RoomRow> {
     sqlx::query_as!(
@@ -46,7 +45,6 @@ pub async fn find_room_by_title(db: &PgPool, room_title: String) -> anyhow::Resu
     .context("failed to fetch room by title")
 }
 
-#[allow(clippy::panic)]
 #[tracing::instrument(name = "list chat messages query")]
 pub async fn list_messages(db: &PgPool, room_id: Uuid) -> anyhow::Result<Vec<ChatMessageRow>> {
     sqlx::query_as!(
@@ -65,7 +63,6 @@ pub async fn list_messages(db: &PgPool, room_id: Uuid) -> anyhow::Result<Vec<Cha
     .context("failed to list chat messages")
 }
 
-#[allow(clippy::panic)]
 #[tracing::instrument(name = "create chat message query")]
 pub async fn create_message(
     db: &PgPool,

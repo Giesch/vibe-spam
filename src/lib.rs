@@ -1,8 +1,7 @@
 #![warn(
     clippy::module_name_repetitions,
     clippy::wildcard_imports,
-    clippy::unwrap_used,
-    clippy::panic
+    clippy::unwrap_used
 )]
 
 pub mod app;
