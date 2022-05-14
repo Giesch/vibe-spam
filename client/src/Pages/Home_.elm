@@ -79,11 +79,15 @@ update msg model =
             in
             ( newModel, Effect.none )
 
+        FromJs (Ok (Ports.ChatRoomUpdated _)) ->
+            -- TODO
+            ( model, Effect.none )
+
         FromJs (Err error) ->
             let
                 newModel : Model
                 newModel =
-                    { model | lobby = Err <| Decode.errorToString error }
+                    { model | lobby = Err (Decode.errorToString error) }
             in
             ( newModel, Effect.none )
 

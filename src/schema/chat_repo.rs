@@ -51,9 +51,11 @@ pub async fn list_messages(db: &PgPool, room_id: Uuid) -> anyhow::Result<Vec<Cha
         r#"
             SELECT *
             FROM chat_messages
+            WHERE room_id = $1
             ORDER BY created_at DESC
             LIMIT 50
-        "#
+        "#,
+        room_id
     )
     .fetch_all(db)
     .await
@@ -68,7 +70,11 @@ pub async fn create_message(
     sqlx::query_as!(
         ChatMessageRow,
         r#"
-            INSERT INTO chat_messages (room_id, author_session_id, content)
+            INSERT INTO chat_messages (
+              room_id,
+              author_session_id,
+              content
+            )
             VALUES ($1, $2, $3) RETURNING *
         "#,
         new_message.room_id,

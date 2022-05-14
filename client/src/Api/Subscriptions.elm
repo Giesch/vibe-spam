@@ -1,7 +1,10 @@
 module Api.Subscriptions exposing
-    ( LobbyData
+    ( ChatMessageData
+    , LobbyData
     , RoomData
     , chatRoomUpdates
+    , chatRoomUpdatesDecoder
+    , chatRoomUpdatesDocument
     , lobbyUpdatesDecoder
     , lobbyUpdatesDocument
     )
@@ -24,6 +27,16 @@ chatRoomUpdates :
     -> SelectionSet (List ChatMessageData) RootSubscription
 chatRoomUpdates args =
     Subscription.chatRoomUpdates args chatRoomSelection
+
+
+chatRoomUpdatesDocument : { roomTitle : String } -> String
+chatRoomUpdatesDocument args =
+    Graphql.Document.serializeSubscription (chatRoomUpdates args)
+
+
+chatRoomUpdatesDecoder : { roomTitle : String } -> Decoder (List ChatMessageData)
+chatRoomUpdatesDecoder args =
+    Graphql.Document.decoder (chatRoomUpdates args)
 
 
 lobbyUpdates : SelectionSet LobbyData RootSubscription

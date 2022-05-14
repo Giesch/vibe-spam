@@ -10,7 +10,9 @@ import Effect exposing (Effect)
 import Gen.Params.Rooms.Slug_ exposing (Params)
 import Html.Styled exposing (..)
 import Html.Styled.Attributes as Attrs exposing (css)
+import Json.Decode as Decode
 import Page
+import Ports
 import Request
 import Shared
 import Shared.Session as Session
@@ -42,11 +44,16 @@ type alias Model =
 
 init : Shared.Model -> Request.With Params -> ( Model, Effect Msg )
 init shared req =
+    let
+        roomTitle : String
+        roomTitle =
+            req.params.slug
+    in
     ( { messages = fakeMessages
-      , roomTitle = req.params.slug
+      , roomTitle = roomTitle
       , sessionId = Maybe.map Session.id shared.session
       }
-    , Effect.none
+    , Ports.chatRoomSubscribe { roomTitle = roomTitle }
     )
 
 
@@ -88,13 +95,17 @@ fakeMessages =
 
 
 type Msg
-    = ReplaceMe
+    = FromJs (Result Decode.Error Ports.FromJsMsg)
 
 
 update : Msg -> Model -> ( Model, Effect Msg )
 update msg model =
     case msg of
-        ReplaceMe ->
+        FromJs result ->
+            let
+                _ =
+                    Debug.log "result" result
+            in
             ( model, Effect.none )
 
 
@@ -104,7 +115,7 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-    Sub.none
+    Ports.subscription FromJs
 
 
 

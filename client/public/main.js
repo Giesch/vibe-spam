@@ -47,16 +47,32 @@ export async function init() {
       case "lobby-subscribe":
         const { unsubscribe } = pipe(
           gqlClient.subscription(value),
+
           subscribe((result) => {
-            app.ports.fromJs.send({ kind: "lobby-updated", value: result });
+            app.ports.fromJs.send({
+              kind: "lobby-updated",
+              value: result,
+            });
           })
         );
 
         unsubscribeFromLobby = unsubscribe;
         break;
 
-      case "lobby-unsubscribe":
-        unsubscribeFromLobby();
+      case "chat-room-subscribe":
+        const { roomTitle, document } = value;
+
+        const { unsubscribe: _unsubscribe } = pipe(
+          gqlClient.subscription(document),
+
+          subscribe((result) => {
+            app.ports.fromJs.send({
+              kind: "chat-room-updated",
+              value: { result, roomTitle },
+            });
+          })
+        );
+
         break;
     }
   });

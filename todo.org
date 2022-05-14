@@ -1,10 +1,10 @@
 * Now
-- [ ] add FE chat subscription
-  - [ ] start on page load
-
-- [ ] add FE chat mutation (add a message)
+- [ ] add BE chat mutation (create/publish a message)
+- [ ] add FE chat mutation (create/publish a message)
 
 * Next
+- [ ] handle FE subscription events
+  need to dedupe messages? not at first
 - [ ] tests for lobby subscription
   this will need multiple test gql clients
 
@@ -27,7 +27,7 @@
 * Someday
 - [ ] make the axum fallback route in local dev point back to vite server
 - [ ] use elm-ts-interop for ports
-  convert main.js to ts? does vite make this easy?
+  - [ ] convert js files to ts
 - [ ] see if it's possible to switch from urql to urql-core
 - [ ] optimistic updates?
 - [ ] disconnect/reconnect handling for subscriptions
@@ -49,6 +49,7 @@
   - [ ] add elm review emacs setup (or switch to intellij?)
   - [ ] investigate elm-pair emacs setup
 - [ ] use ints for times in json instead of DateTime?
+- [ ] make a 'banned identifier names' elm review rule
 
 * Next Time
 - don't use elm-tailwind-modules, it'll never get on TW 3.0
