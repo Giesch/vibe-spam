@@ -110,7 +110,7 @@ impl ChatMessageSubscriber {
             // https://users.rust-lang.org/t/cloning-variable-inside-of-an-async-move-block/40883/2
             // the 'ok' will drop missed messages if a subscriber falls too far behind:
             // https://docs.rs/tokio/latest/tokio/sync/broadcast/index.html#lagging
-            let maybe_new_messages = new_messages.ok().clone();
+            let maybe_new_messages = new_messages.ok();
 
             async move {
                 maybe_new_messages.filter(|new_messages| {
