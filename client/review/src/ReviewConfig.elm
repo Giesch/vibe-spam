@@ -19,6 +19,7 @@ import NoForbiddenWords
 import NoImportingEverything
 import NoMissingTypeAnnotation
 import NoMissingTypeAnnotationInLetIn
+import NoMissingTypeConstructor
 import NoMissingTypeExpose
 import NoPrematureLetComputation
 import NoSimpleLetBody
@@ -60,6 +61,7 @@ config =
         , NoUnused.Variables.rule
         , Simplify.rule Simplify.defaults
         , NoForbiddenWords.rule [ "TODO", "FIXME" ]
+        , NoMissingTypeConstructor.rule
         ]
 
 

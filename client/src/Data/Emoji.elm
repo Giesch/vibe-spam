@@ -75,7 +75,6 @@ toString emoji =
 
 all : List Emoji
 all =
-    -- TODO lint rule for 'all'
     [ SweatSmile
     , Smile
     , Heart
