@@ -54,3 +54,5 @@
 - don't use elm-tailwind-modules, it'll never get on TW 3.0
 - use a configured default app database in prod instead of 'postgres'
 - use different types for redis serialization and graphql
+- always send result types in a subscription stream
+  and always use boxed streams instead of plain generics

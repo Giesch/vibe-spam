@@ -7,8 +7,28 @@ use super::chat_repo::ChatMessageRow;
 use super::{ChatMessage, Emoji};
 use crate::pubsub::ChatMessagePublisher;
 
-pub async fn list_messages(db: &PgPool, room_id: Uuid) -> anyhow::Result<Vec<ChatMessage>> {
-    let rows = chat_repo::list_messages(db, room_id).await?;
+pub struct InitialMessages {
+    pub room_id: Uuid,
+    pub messages: Vec<ChatMessage>,
+}
+
+pub async fn list_initial_messages(
+    db: &PgPool,
+    room_title: String,
+) -> anyhow::Result<InitialMessages> {
+    let room = chat_repo::find_room_by_title(db, room_title).await?;
+
+    let messages = chat_repo::list_messages(db, room.id)
+        .await
+        .and_then(convert_message_rows)?;
+
+    Ok(InitialMessages {
+        room_id: room.id,
+        messages,
+    })
+}
+
+fn convert_message_rows(rows: Vec<chat_repo::ChatMessageRow>) -> anyhow::Result<Vec<ChatMessage>> {
     rows.into_iter().map(TryInto::try_into).collect()
 }
 

@@ -6,7 +6,7 @@ use bb8::{Pool, PooledConnection};
 use bb8_redis::RedisConnectionManager;
 use chrono::{DateTime, Utc};
 use futures::StreamExt;
-use futures_core::stream::Stream;
+use futures_core::stream::{BoxStream, Stream};
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use std::sync::Arc;
@@ -62,37 +62,23 @@ impl Subscription {
         &self,
         ctx: &'ctx Context<'_>,
         room_title: String,
-    ) -> impl Stream<Item = Vec<ChatMessage>> {
+    ) -> BoxStream<'_, Vec<ChatMessage>> {
         let db = ctx.db();
         let chat_subscriber = ctx.chat_subscriber();
 
-        let room = match chat_repo::find_room_by_title(db, room_title).await {
+        let initial = match chat::list_initial_messages(db, room_title).await {
             Ok(r) => r,
             Err(err) => {
                 tracing::error!("failed to list chat messages: {err}");
-                // TODO change type to allow returning errors in the stream
-                // there'll still be a problem with returning a Once for this case
-                return todo!("need to return an error here");
+                return futures::stream::empty().boxed();
             }
         };
 
-        let initial_messages = chat_repo::list_messages(db, room.id)
-            .await
-            .and_then(convert_message_rows)
-            .unwrap_or_else(|err| {
-                tracing::error!("failed to list chat messages: {err}");
-                Vec::new()
-            });
+        let first = tokio_stream::once(initial.messages);
+        let rest = chat_subscriber.room_stream(initial.room_id);
 
-        let first = tokio_stream::once(initial_messages);
-        let rest = chat_subscriber.room_stream(room.id);
-
-        first.chain(rest)
+        first.chain(rest).boxed()
     }
-}
-
-fn convert_message_rows(rows: Vec<chat_repo::ChatMessageRow>) -> anyhow::Result<Vec<ChatMessage>> {
-    rows.into_iter().map(TryInto::try_into).collect()
 }
 
 // NOTE, this is also used for serializing to redis
