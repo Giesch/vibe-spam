@@ -1,5 +1,5 @@
-use anyhow::Context;
 use sqlx::PgPool;
+use std::str::FromStr;
 use uuid::Uuid;
 
 use super::chat_repo;
@@ -58,7 +58,7 @@ impl TryFrom<ChatMessageRow> for ChatMessage {
     type Error = anyhow::Error;
 
     fn try_from(row: ChatMessageRow) -> Result<Self, Self::Error> {
-        let emoji = Emoji::from_str(&row.content).context("unexpected emoji string")?;
+        let emoji = Emoji::from_str(&row.content)?;
 
         Ok(Self {
             emoji,

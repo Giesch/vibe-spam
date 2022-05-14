@@ -9,7 +9,7 @@ use futures::StreamExt;
 use futures_core::stream::{BoxStream, Stream};
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
-use std::sync::Arc;
+use std::{str::FromStr, sync::Arc};
 use uuid::Uuid;
 
 use crate::{
@@ -133,9 +133,19 @@ impl Emoji {
             Emoji::Party => "🥳",
         }
     }
+}
 
-    pub fn from_str(s: &str) -> Option<Self> {
-        ALL_EMOJI.iter().find(|emoji| emoji.to_str() == s).copied()
+impl FromStr for Emoji {
+    type Err = anyhow::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        use anyhow::Context;
+
+        ALL_EMOJI
+            .iter()
+            .find(|emoji| emoji.to_str() == s)
+            .copied()
+            .context("invalid emoji")
     }
 }
 
