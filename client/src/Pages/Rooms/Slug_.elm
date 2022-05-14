@@ -20,7 +20,7 @@ import Request
 import Shared
 import Shared.Session as Session
 import Tailwind.Utilities as Tw
-import VibeSpam.Mutation exposing (CreateMessageRequiredArguments)
+import VibeSpam.InputObject as InputObject
 import VibeSpam.Scalar as Scalar exposing (Uuid)
 import View exposing (View)
 import Views.PageHeader as PageHeader
@@ -82,8 +82,8 @@ type alias MessageView =
 
 type Msg
     = FromJs (Result Decode.Error Ports.FromJsMsg)
-    | CreatedMessage
-    | SendEmoji Emoji
+    | CreatedMessage (Api.GraphqlData ())
+    | EmojiClicked Emoji
 
 
 update : Msg -> Model -> ( Model, Effect Msg )
@@ -111,11 +111,11 @@ update msg model =
         FromJs (Err _) ->
             ( model, Effect.none )
 
-        CreatedMessage ->
+        CreatedMessage _ ->
             -- NOTE relying on the subscription for this
             ( model, Effect.none )
 
-        SendEmoji emoji ->
+        EmojiClicked emoji ->
             ( model, createMessage model emoji )
 
 
@@ -131,13 +131,14 @@ createMessage { roomTitle, sessionId } emoji =
 
         Just authorSessionId ->
             let
+                newMessage : InputObject.NewMessage
                 newMessage =
                     { emoji = Emoji.toGraphql emoji
                     , authorSessionId = authorSessionId
                     , roomTitle = roomTitle
                     }
             in
-            Api.createMessage (\_ -> CreatedMessage) { newMessage = newMessage }
+            Api.createMessage CreatedMessage { newMessage = newMessage }
 
 
 
@@ -244,7 +245,7 @@ viewEmojiPanel =
 viewEmojiButton : Emoji -> Html Msg
 viewEmojiButton emoji =
     button
-        [ Events.onClick (SendEmoji emoji)
+        [ Events.onClick (EmojiClicked emoji)
         , css [ Tw.px_2, Tw.py_1, Tw.mx_1 ]
         ]
         [ text <| Emoji.toString emoji ]
