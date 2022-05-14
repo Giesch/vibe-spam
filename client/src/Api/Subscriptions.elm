@@ -2,7 +2,6 @@ module Api.Subscriptions exposing
     ( ChatMessageData
     , LobbyData
     , RoomData
-    , chatRoomUpdates
     , chatRoomUpdatesDecoder
     , chatRoomUpdatesDocument
     , lobbyUpdatesDecoder
@@ -61,8 +60,7 @@ type alias LobbyData =
 
 lobbySelection : SelectionSet LobbyData Object.Lobby
 lobbySelection =
-    SelectionSet.map LobbyData
-        (Lobby.rooms roomSelection)
+    SelectionSet.map LobbyData (Lobby.rooms roomSelection)
 
 
 type alias RoomData =
@@ -79,7 +77,6 @@ roomSelection =
 
 
 type alias ChatMessageData =
-    -- TODO move this to its own module
     { id : Uuid
     , authorSessionId : Uuid
     , emoji : Emoji

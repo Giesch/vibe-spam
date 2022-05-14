@@ -3,12 +3,10 @@ module Pages.Home_ exposing (Model, Msg, page)
 import Api
 import Api.LobbyData exposing (LobbyData)
 import Api.RoomData exposing (RoomData)
-import Css
 import Effect exposing (Effect)
 import Gen.Params.Home_ exposing (Params)
-import Gen.Route as Route exposing (Route)
 import Html.Styled exposing (..)
-import Html.Styled.Attributes as Attrs exposing (css)
+import Html.Styled.Attributes exposing (css)
 import Json.Decode as Decode
 import Page
 import Ports
@@ -17,7 +15,6 @@ import Shared
 import Shared.Routes as Routes
 import Shared.Session exposing (Session)
 import Tailwind.Utilities as Tw
-import VibeSpam.Scalar as Scalar exposing (Uuid)
 import View exposing (View)
 import Views.LobbyTable as LobbyTable
 import Views.PageHeader as PageHeader
@@ -79,8 +76,8 @@ update msg model =
             in
             ( newModel, Effect.none )
 
-        FromJs (Ok (Ports.ChatRoomUpdated _)) ->
-            -- TODO
+        FromJs (Ok _) ->
+            -- chat room update
             ( model, Effect.none )
 
         FromJs (Err error) ->
@@ -124,6 +121,7 @@ view model =
 layout : Model -> List (Html Msg)
 layout model =
     let
+        mainContent : Html Msg
         mainContent =
             case model.lobby of
                 Ok lobby ->

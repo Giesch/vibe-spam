@@ -2,7 +2,6 @@ module Data.Emoji exposing
     ( Emoji(..)
     , all
     , fromGraphql
-    , fromString
     , toGraphql
     , toString
     )
@@ -61,17 +60,6 @@ toGraphql emoji =
 
         Party ->
             Gql.Party
-
-
-fromString : String -> Maybe Emoji
-fromString str =
-    let
-        matches : Emoji -> Bool
-        matches emoji =
-            str == toString emoji
-    in
-    List.filter matches all
-        |> List.head
 
 
 toString : Emoji -> String

@@ -7,6 +7,7 @@
   need to dedupe messages? not at first
 - [ ] tests for lobby subscription
   this will need multiple test gql clients
+- [ ] use a pending state for messages initally loading
 
 * Soon
 - [ ] test lobby flag with actual rooms present

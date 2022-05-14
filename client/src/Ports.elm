@@ -1,5 +1,6 @@
 port module Ports exposing
-    ( FromJsMsg(..)
+    ( ChatRoomSubscribeJson
+    , FromJsMsg(..)
     , ToJsMsg(..)
     , chatRoomSubscribe
     , lobbySubscribe
@@ -19,7 +20,13 @@ import Json.Encode as Encode
 
 type ToJsMsg
     = LobbySubscribe String
-    | ChatRoomSubscribe { roomTitle : String, document : String }
+    | ChatRoomSubscribe ChatRoomSubscribeJson
+
+
+type alias ChatRoomSubscribeJson =
+    { roomTitle : String
+    , document : String
+    }
 
 
 type FromJsMsg
@@ -35,6 +42,7 @@ lobbySubscribe =
 chatRoomSubscribe : { roomTitle : String } -> Effect msg
 chatRoomSubscribe args =
     let
+        json : ChatRoomSubscribeJson
         json =
             { roomTitle = args.roomTitle
             , document = Subscriptions.chatRoomUpdatesDocument args
@@ -85,6 +93,7 @@ fromJsDecoder =
 valueDecoderForKind : String -> Decoder FromJsMsg
 valueDecoderForKind kind =
     let
+        decodeMsg : (data -> msg) -> Decoder data -> Decoder msg
         decodeMsg toMsg valueDecoder =
             Decode.map toMsg (Decode.field "value" valueDecoder)
     in

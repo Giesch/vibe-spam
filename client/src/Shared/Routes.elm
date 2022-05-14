@@ -1,20 +1,6 @@
-module Shared.Routes exposing
-    ( home
-    , notFound
-    , rooms
-    )
+module Shared.Routes exposing (rooms)
 
 import Gen.Route as Route exposing (Route)
-
-
-home : Route
-home =
-    Route.Home_
-
-
-notFound : Route
-notFound =
-    Route.NotFound
 
 
 rooms : { slug : String } -> Route

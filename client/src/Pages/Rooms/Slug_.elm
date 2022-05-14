@@ -1,5 +1,6 @@
 module Pages.Rooms.Slug_ exposing
-    ( Model
+    ( MessageData
+    , Model
     , Msg
     , page
     )
@@ -11,7 +12,7 @@ import Data.Emoji as Emoji exposing (Emoji)
 import Effect exposing (Effect)
 import Gen.Params.Rooms.Slug_ exposing (Params)
 import Html.Styled exposing (..)
-import Html.Styled.Attributes as Attrs exposing (css)
+import Html.Styled.Attributes exposing (css)
 import Html.Styled.Events as Events
 import Json.Decode as Decode
 import Page
@@ -21,7 +22,7 @@ import Shared
 import Shared.Session as Session
 import Tailwind.Utilities as Tw
 import VibeSpam.InputObject as InputObject
-import VibeSpam.Scalar as Scalar exposing (Uuid)
+import VibeSpam.Scalar exposing (Uuid)
 import View exposing (View)
 import Views.PageHeader as PageHeader
 
@@ -54,7 +55,6 @@ init shared req =
         roomTitle =
             req.params.slug
     in
-    -- TODO use a loading state
     ( { messages = []
       , roomTitle = roomTitle
       , sessionId = Maybe.map Session.id shared.session
@@ -69,20 +69,13 @@ type alias MessageData =
     }
 
 
-type alias MessageView =
-    { content : String
-    , authorColor : Style
-    , alignment : Style
-    }
-
-
 
 -- UPDATE
 
 
 type Msg
     = FromJs (Result Decode.Error Ports.FromJsMsg)
-    | CreatedMessage (Api.GraphqlData ())
+    | CreatedMessage
     | EmojiClicked Emoji
 
 
@@ -97,6 +90,7 @@ update msg model =
                     , authorSessionId = authorSessionId
                     }
 
+                updatedMessages : List MessageData
                 updatedMessages =
                     List.map toUiMessage newMessages ++ model.messages
             in
@@ -111,7 +105,7 @@ update msg model =
         FromJs (Err _) ->
             ( model, Effect.none )
 
-        CreatedMessage _ ->
+        CreatedMessage ->
             -- NOTE relying on the subscription for this
             ( model, Effect.none )
 
@@ -138,7 +132,7 @@ createMessage { roomTitle, sessionId } emoji =
                     , roomTitle = roomTitle
                     }
             in
-            Api.createMessage CreatedMessage { newMessage = newMessage }
+            Api.createMessage (\_ -> CreatedMessage) { newMessage = newMessage }
 
 
 
