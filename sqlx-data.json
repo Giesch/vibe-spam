@@ -66,6 +66,44 @@
     },
     "query": "SELECT 1 AS one"
   },
+  "a77bac4904de707a34dcb0727c7e0ae6fab9af69058b6d2baac3597ab25aede8": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "title",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "\n            SELECT *\n            FROM rooms\n            WHERE title = $1\n            ORDER BY updated_at DESC\n            LIMIT 1\n        "
+  },
   "ab8963c5987d4e22d01cf5ce8ab65677d6bcafb24d866f2039a4a70f291aa6b6": {
     "describe": {
       "columns": [

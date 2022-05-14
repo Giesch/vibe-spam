@@ -61,12 +61,22 @@ impl Subscription {
     async fn chat_room_updates<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,
-        room_id: Uuid,
+        room_title: String,
     ) -> impl Stream<Item = Vec<ChatMessage>> {
         let db = ctx.db();
         let chat_subscriber = ctx.chat_subscriber();
 
-        let initial_messages = chat_repo::list_messages(db, room_id)
+        let room = match chat_repo::find_room_by_title(db, room_title).await {
+            Ok(r) => r,
+            Err(err) => {
+                tracing::error!("failed to list chat messages: {err}");
+                // TODO change type to allow returning errors in the stream
+                // there'll still be a problem with returning a Once for this case
+                return todo!("need to return an error here");
+            }
+        };
+
+        let initial_messages = chat_repo::list_messages(db, room.id)
             .await
             .and_then(convert_message_rows)
             .unwrap_or_else(|err| {
@@ -75,7 +85,7 @@ impl Subscription {
             });
 
         let first = tokio_stream::once(initial_messages);
-        let rest = chat_subscriber.room_stream(room_id);
+        let rest = chat_subscriber.room_stream(room.id);
 
         first.chain(rest)
     }

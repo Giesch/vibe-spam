@@ -20,6 +20,30 @@ pub struct NewMessage {
     pub content: String,
 }
 
+pub struct RoomRow {
+    pub id: Uuid,
+    pub title: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+pub async fn find_room_by_title(db: &PgPool, room_title: String) -> anyhow::Result<RoomRow> {
+    sqlx::query_as!(
+        RoomRow,
+        r#"
+            SELECT *
+            FROM rooms
+            WHERE title = $1
+            ORDER BY updated_at DESC
+            LIMIT 1
+        "#,
+        room_title
+    )
+    .fetch_one(db)
+    .await
+    .context("failed to fetch room by title")
+}
+
 #[tracing::instrument(name = "list chat messages query")]
 pub async fn list_messages(db: &PgPool, room_id: Uuid) -> anyhow::Result<Vec<ChatMessageRow>> {
     sqlx::query_as!(

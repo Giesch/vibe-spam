@@ -1,6 +1,7 @@
 * Now
 - [ ] add FE chat subscription
   - [ ] start on page load
+
 - [ ] add FE chat mutation (add a message)
 
 * Next
@@ -21,6 +22,7 @@
   a decode error in a message the server sent to itself is a programmer error
 - [ ] pending state when adding a room
 - [ ] make the random room name dictionary larger
+- [ ] customize custom scalars (ie more specific ids)
 
 * Someday
 - [ ] make the axum fallback route in local dev point back to vite server
@@ -51,3 +53,4 @@
 * Next Time
 - don't use elm-tailwind-modules, it'll never get on TW 3.0
 - use a configured default app database in prod instead of 'postgres'
+- use different types for redis serialization and graphql
