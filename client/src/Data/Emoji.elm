@@ -3,6 +3,7 @@ module Data.Emoji exposing
     , all
     , fromGraphql
     , fromString
+    , toGraphql
     , toString
     )
 
@@ -38,6 +39,28 @@ fromGraphql gqlEmoji =
 
         Gql.Party ->
             Party
+
+
+toGraphql : Emoji -> Gql.Emoji
+toGraphql emoji =
+    case emoji of
+        SweatSmile ->
+            Gql.SweatSmile
+
+        Smile ->
+            Gql.Smile
+
+        Heart ->
+            Gql.Heart
+
+        Crying ->
+            Gql.Crying
+
+        UpsideDown ->
+            Gql.UpsideDown
+
+        Party ->
+            Gql.Party
 
 
 fromString : String -> Maybe Emoji

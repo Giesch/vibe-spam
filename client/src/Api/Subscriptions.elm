@@ -79,6 +79,7 @@ roomSelection =
 
 
 type alias ChatMessageData =
+    -- TODO move this to its own module
     { id : Uuid
     , authorSessionId : Uuid
     , emoji : Emoji

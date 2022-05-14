@@ -40,6 +40,7 @@
   https://github.com/MattCheely/elm-build-config
 - [ ] consider using flume instead of tokio broadcast
 - [ ] run ci elm build against both prod gql and branch gql
+- [ ] make a uuid wrapper that's easier to use; customize codec to generate that
 
 * Other
 - [-] catch up reading z2p
@@ -57,3 +58,4 @@
 - use different types for redis serialization and graphql
 - always send result types in a subscription stream
   and always use boxed streams instead of plain generics
+- use customized scalar codecs from the beginning, if using graphql

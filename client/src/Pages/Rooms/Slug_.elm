@@ -4,12 +4,15 @@ module Pages.Rooms.Slug_ exposing
     , page
     )
 
+import Api
+import Api.Subscriptions exposing (ChatMessageData)
 import Css exposing (Style)
 import Data.Emoji as Emoji exposing (Emoji)
 import Effect exposing (Effect)
 import Gen.Params.Rooms.Slug_ exposing (Params)
 import Html.Styled exposing (..)
 import Html.Styled.Attributes as Attrs exposing (css)
+import Html.Styled.Events as Events
 import Json.Decode as Decode
 import Page
 import Ports
@@ -17,6 +20,8 @@ import Request
 import Shared
 import Shared.Session as Session
 import Tailwind.Utilities as Tw
+import VibeSpam.Mutation exposing (CreateMessageRequiredArguments)
+import VibeSpam.Scalar as Scalar exposing (Uuid)
 import View exposing (View)
 import Views.PageHeader as PageHeader
 
@@ -38,7 +43,7 @@ page shared req =
 type alias Model =
     { messages : List MessageData
     , roomTitle : String
-    , sessionId : Maybe String
+    , sessionId : Maybe Uuid
     }
 
 
@@ -49,7 +54,8 @@ init shared req =
         roomTitle =
             req.params.slug
     in
-    ( { messages = fakeMessages
+    -- TODO use a loading state
+    ( { messages = []
       , roomTitle = roomTitle
       , sessionId = Maybe.map Session.id shared.session
       }
@@ -59,7 +65,7 @@ init shared req =
 
 type alias MessageData =
     { emoji : Emoji
-    , authorSessionId : String
+    , authorSessionId : Uuid
     }
 
 
@@ -70,43 +76,68 @@ type alias MessageView =
     }
 
 
-fakeMessages : List MessageData
-fakeMessages =
-    -- TODO unexpose Emoji(..) after removing this
-    let
-        ourSessionId : String
-        ourSessionId =
-            "668adab3-356b-4556-9d39-00c17b8dc227"
-    in
-    [ { emoji = Emoji.SweatSmile
-      , authorSessionId = ourSessionId
-      }
-    , { emoji = Emoji.Smile
-      , authorSessionId = "theirSessionId"
-      }
-    , { emoji = Emoji.Heart
-      , authorSessionId = ourSessionId
-      }
-    ]
-
-
 
 -- UPDATE
 
 
 type Msg
     = FromJs (Result Decode.Error Ports.FromJsMsg)
+    | CreatedMessage
+    | SendEmoji Emoji
 
 
 update : Msg -> Model -> ( Model, Effect Msg )
 update msg model =
     case msg of
-        FromJs result ->
+        FromJs (Ok (Ports.ChatRoomUpdated newMessages)) ->
             let
-                _ =
-                    Debug.log "result" result
+                toUiMessage : ChatMessageData -> MessageData
+                toUiMessage { emoji, authorSessionId } =
+                    { emoji = Emoji.fromGraphql emoji
+                    , authorSessionId = authorSessionId
+                    }
+
+                updatedMessages =
+                    List.map toUiMessage newMessages ++ model.messages
             in
+            ( { model | messages = updatedMessages }
+            , Effect.none
+            )
+
+        FromJs (Ok _) ->
+            -- lobby subscription message
             ( model, Effect.none )
+
+        FromJs (Err _) ->
+            ( model, Effect.none )
+
+        CreatedMessage ->
+            -- NOTE relying on the subscription for this
+            ( model, Effect.none )
+
+        SendEmoji emoji ->
+            ( model, createMessage model emoji )
+
+
+
+-- Effects
+
+
+createMessage : Model -> Emoji -> Effect Msg
+createMessage { roomTitle, sessionId } emoji =
+    case sessionId of
+        Nothing ->
+            Effect.none
+
+        Just authorSessionId ->
+            let
+                newMessage =
+                    { emoji = Emoji.toGraphql emoji
+                    , authorSessionId = authorSessionId
+                    , roomTitle = roomTitle
+                    }
+            in
+            Api.createMessage (\_ -> CreatedMessage) { newMessage = newMessage }
 
 
 
@@ -134,7 +165,9 @@ layout model =
     [ PageHeader.view
     , main_
         [ css [ Tw.h_full, Tw.grid, Tw.grid_flow_row, Tw.grid_cols_6, Tw.grid_rows_1 ] ]
-        [ leftSection model.roomTitle, rightSection model.sessionId model.messages ]
+        [ leftSection model.roomTitle
+        , rightSection model
+        ]
     ]
 
 
@@ -156,18 +189,18 @@ leftSection roomTitle =
         [ text roomTitle ]
 
 
-rightSection : Maybe String -> List MessageData -> Html Msg
-rightSection sessionId messages =
+rightSection : Model -> Html Msg
+rightSection { sessionId, messages } =
     let
         messageViews : List (Html Msg)
         messageViews =
-            List.reverse <| List.map (viewMessage sessionId) messages
+            List.map (viewMessage sessionId) messages
     in
     section [ css [ Tw.col_span_5, Tw.flex, Tw.flex_col_reverse ] ]
         (viewEmojiPanel :: messageViews)
 
 
-viewMessage : Maybe String -> MessageData -> Html Msg
+viewMessage : Maybe Uuid -> MessageData -> Html Msg
 viewMessage sessionId messageData =
     let
         content : String
@@ -205,16 +238,13 @@ viewEmojiPanel =
             ]
     in
     div [ css styles ] <|
-        List.map viewEmojiButton emojiOptions
+        List.map viewEmojiButton Emoji.all
 
 
-emojiOptions : List String
-emojiOptions =
-    List.map Emoji.toString Emoji.all
-
-
-viewEmojiButton : String -> Html Msg
+viewEmojiButton : Emoji -> Html Msg
 viewEmojiButton emoji =
     button
-        [ css [ Tw.px_2, Tw.py_1, Tw.mx_1 ] ]
-        [ text emoji ]
+        [ Events.onClick (SendEmoji emoji)
+        , css [ Tw.px_2, Tw.py_1, Tw.mx_1 ]
+        ]
+        [ text <| Emoji.toString emoji ]

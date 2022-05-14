@@ -1,5 +1,6 @@
 module Api exposing
     ( GraphqlData
+    , createMessage
     , createRoom
     )
 
@@ -10,7 +11,7 @@ import Graphql.Http
 import Graphql.Operation exposing (RootMutation)
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet)
 import RemoteData exposing (RemoteData)
-import VibeSpam.Mutation as Mutation
+import VibeSpam.Mutation as Mutation exposing (CreateMessageRequiredArguments)
 import VibeSpam.Object as Object
 import VibeSpam.Object.Room as Room
 
@@ -28,6 +29,11 @@ createRoom toMsg =
     mutationEffect toMsg createRoomMutation
 
 
+createMessage : (GraphqlData () -> msg) -> CreateMessageRequiredArguments -> Effect msg
+createMessage toMsg args =
+    mutationEffect toMsg (createMessageMutation args)
+
+
 
 -- SELECTIONS
 
@@ -42,6 +48,11 @@ roomSelection =
     SelectionSet.map2 RoomData
         Room.id
         Room.title
+
+
+createMessageMutation : CreateMessageRequiredArguments -> SelectionSet () RootMutation
+createMessageMutation args =
+    Mutation.createMessage args SelectionSet.empty
 
 
 

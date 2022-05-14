@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 use super::chat_repo;
 use super::chat_repo::ChatMessageRow;
-use super::{ChatMessage, Emoji};
+use super::{ChatMessage, Emoji, NewMessage};
 use crate::pubsub::ChatMessagePublisher;
 
 pub struct InitialMessages {
@@ -35,14 +35,23 @@ fn convert_message_rows(rows: Vec<chat_repo::ChatMessageRow>) -> anyhow::Result<
 pub async fn create_message(
     db: &PgPool,
     publisher: &mut ChatMessagePublisher<'_>,
-    new_message: chat_repo::NewMessage,
+    new_message: NewMessage,
 ) -> anyhow::Result<ChatMessage> {
-    let message = chat_repo::create_message(db, new_message.into()).await?;
-    let message: ChatMessage = message.try_into()?;
+    let room = chat_repo::find_room_by_title(db, new_message.room_title).await?;
 
-    publisher.publish(vec![message.clone()]).await?;
+    let content = new_message.emoji.to_str().to_string();
+    let new_message = chat_repo::NewMessage {
+        room_id: room.id,
+        author_session_id: new_message.author_session_id,
+        content,
+    };
 
-    Ok(message)
+    let created_message = chat_repo::create_message(db, new_message).await?;
+    let created_message: ChatMessage = created_message.try_into()?;
+
+    publisher.publish(vec![created_message.clone()]).await?;
+
+    Ok(created_message)
 }
 
 impl TryFrom<ChatMessageRow> for ChatMessage {
@@ -58,23 +67,5 @@ impl TryFrom<ChatMessageRow> for ChatMessage {
             author_session_id: row.author_session_id,
             updated_at: row.updated_at,
         })
-    }
-}
-
-pub struct NewMessage {
-    room_id: Uuid,
-    author_session_id: Uuid,
-    emoji: Emoji,
-}
-
-impl From<NewMessage> for chat_repo::NewMessage {
-    fn from(message: NewMessage) -> Self {
-        let content = message.emoji.to_str().to_string();
-
-        Self {
-            room_id: message.room_id,
-            author_session_id: message.author_session_id,
-            content,
-        }
     }
 }

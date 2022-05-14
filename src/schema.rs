@@ -13,7 +13,7 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::{
-    pubsub::{self, ChatMessageSubscriber, LobbyPublisher, LobbySubscriber},
+    pubsub::{self, ChatMessagePublisher, ChatMessageSubscriber, LobbyPublisher, LobbySubscriber},
     settings::Settings,
 };
 
@@ -48,6 +48,26 @@ impl Mutation {
 
         Ok(room)
     }
+
+    async fn create_message<'ctx>(
+        &self,
+        ctx: &'ctx Context<'_>,
+        new_message: NewMessage,
+    ) -> Result<ChatMessage> {
+        let db = ctx.db();
+        let mut chat_publisher = ctx.chat_publisher().await?;
+
+        let message = chat::create_message(db, &mut chat_publisher, new_message).await?;
+
+        Ok(message)
+    }
+}
+
+#[derive(InputObject)]
+pub struct NewMessage {
+    room_title: String,
+    author_session_id: Uuid,
+    emoji: Emoji,
 }
 
 pub struct Subscription;
@@ -67,7 +87,7 @@ impl Subscription {
         let chat_subscriber = ctx.chat_subscriber();
 
         let initial = match chat::list_initial_messages(db, room_title).await {
-            Ok(r) => r,
+            Ok(ok) => ok,
             Err(err) => {
                 tracing::error!("failed to list chat messages: {err}");
                 return futures::stream::empty().boxed();
@@ -218,6 +238,8 @@ trait VibeSpamContext {
 
     async fn lobby_publisher(&self) -> anyhow::Result<LobbyPublisher>;
 
+    async fn chat_publisher(&self) -> anyhow::Result<ChatMessagePublisher>;
+
     fn lobby_subscriber(&self) -> LobbySubscriber;
 
     fn chat_subscriber(&self) -> &ChatMessageSubscriber;
@@ -246,6 +268,12 @@ impl<'ctx> VibeSpamContext for Context<'ctx> {
         let redis = self.redis().await?;
 
         Ok(LobbyPublisher::new(redis))
+    }
+
+    async fn chat_publisher(&self) -> anyhow::Result<ChatMessagePublisher> {
+        let redis = self.redis().await?;
+
+        Ok(ChatMessagePublisher::new(redis))
     }
 
     fn lobby_subscriber(&self) -> LobbySubscriber {
