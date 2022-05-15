@@ -1,6 +1,10 @@
 * Now
 - [X] add BE chat mutation (create/publish a message)
 - [X] add FE chat mutation (create/publish a message)
+- [ ] display correct 'last activity'
+  - [ ] use room's updated_at in frontend
+  - [ ] format updated_at nicely
+  - [ ] update the room's updated_at when adding a message
 - [ ] fix scroll in right message section
 
 * Next
