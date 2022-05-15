@@ -40,12 +40,10 @@ export async function init() {
 
   const app = Elm.Main.init({ flags });
 
-  let unsubscribeFromLobby = () => undefined;
-
   app.ports.toJs.subscribe(({ kind, value }) => {
     switch (kind) {
       case "lobby-subscribe":
-        const { unsubscribe } = pipe(
+        pipe(
           gqlClient.subscription(value),
 
           subscribe((result) => {
@@ -56,13 +54,12 @@ export async function init() {
           })
         );
 
-        unsubscribeFromLobby = unsubscribe;
         break;
 
       case "chat-room-subscribe":
         const { roomTitle, document } = value;
 
-        const { unsubscribe: _unsubscribe } = pipe(
+        pipe(
           gqlClient.subscription(document),
 
           subscribe((result) => {

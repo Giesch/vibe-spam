@@ -6,7 +6,7 @@
     "start": "npm run setup && npm run config:local:prod && npm run dev",
     "dev": "concurrently \"elm-spa watch\" \"vite\"",
     "build": "elm-spa gen && vite build",
-    "api:local": "rm -f schema.graphql && cargo run --bin gen-schema ./schema.graphql && elm-graphql --schema-file schema.graphql --base VibeSpam --output .elm-graphql",
+    "api:local": "elm-graphql --schema-file schema.graphql --base VibeSpam --output .elm-graphql",
     "api:prod": "elm-graphql https://vibe-spam.fly.dev/api/graphql --base VibeSpam --output .elm-graphql",
     "tw": "rm -rf .elm-tailwind-modules && node scripts/generateTailwind.js",
     "setup": "npm ci && npx elm-tooling install && npm run tw",

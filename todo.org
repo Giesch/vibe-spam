@@ -1,10 +1,9 @@
 * Now
-- [ ] add BE chat mutation (create/publish a message)
-- [ ] add FE chat mutation (create/publish a message)
+- [X] add BE chat mutation (create/publish a message)
+- [X] add FE chat mutation (create/publish a message)
+- [ ] fix scroll in right message section
 
 * Next
-- [ ] handle FE subscription events
-  need to dedupe messages? not at first
 - [ ] tests for lobby subscription
   this will need multiple test gql clients
 - [ ] use a pending state for messages initally loading
