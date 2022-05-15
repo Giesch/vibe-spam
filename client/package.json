@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "license": "UNLICENSED",
   "scripts": {
-    "start": "npm run setup && npm run config:local:prod && npm run dev",
+    "start": "npm run setup && npm run config:local:prod && npm run api:prod && npm run dev",
     "dev": "concurrently \"elm-spa watch\" \"vite\"",
     "build": "elm-spa gen && vite build",
     "api:local": "elm-graphql --schema-file schema.graphql --base VibeSpam --output .elm-graphql",

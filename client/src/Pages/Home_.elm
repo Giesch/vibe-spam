@@ -69,24 +69,18 @@ update msg model =
             ( model, createRoom )
 
         FromJs (Ok (Ports.LobbyUpdated lobbyData)) ->
-            let
-                newModel : Model
-                newModel =
-                    { model | lobby = Ok lobbyData }
-            in
-            ( newModel, Effect.none )
+            ( { model | lobby = Ok lobbyData }
+            , Effect.none
+            )
 
         FromJs (Ok _) ->
             -- chat room update
             ( model, Effect.none )
 
         FromJs (Err error) ->
-            let
-                newModel : Model
-                newModel =
-                    { model | lobby = Err (Decode.errorToString error) }
-            in
-            ( newModel, Effect.none )
+            ( { model | lobby = Err (Decode.errorToString error) }
+            , Effect.none
+            )
 
 
 

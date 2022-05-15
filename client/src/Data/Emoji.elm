@@ -1,5 +1,5 @@
 module Data.Emoji exposing
-    ( Emoji(..)
+    ( Emoji
     , all
     , fromGraphql
     , toGraphql

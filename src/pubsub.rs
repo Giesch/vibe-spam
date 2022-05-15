@@ -104,10 +104,10 @@ impl ChatMessageSubscriber {
     pub fn room_stream(&self, room_id: Uuid) -> impl Stream<Item = Vec<ChatMessage>> {
         let rx = self.tx.subscribe();
 
+        // explanation for this pattern:
+        // https://users.rust-lang.org/t/cloning-variable-inside-of-an-async-move-block/40883/2
         BroadcastStream::new(rx).filter_map(move |new_messages| {
             // NOTE
-            // explanation for the clone:
-            // https://users.rust-lang.org/t/cloning-variable-inside-of-an-async-move-block/40883/2
             // the 'ok' will drop missed messages if a subscriber falls too far behind:
             // https://docs.rs/tokio/latest/tokio/sync/broadcast/index.html#lagging
             let maybe_new_messages = new_messages.ok();
