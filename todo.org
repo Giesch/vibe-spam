@@ -3,7 +3,11 @@
 - [X] add FE chat mutation (create/publish a message)
 - [ ] display correct 'last activity'
   - [ ] use room's updated_at in frontend
+    - [ ] switch to custom codecs first
+    - [ ] include in flags
+    - [ ] include in gql query
   - [ ] format updated_at nicely
+    - [ ] need a library? rtfeldman 8601?
   - [ ] update the room's updated_at when adding a message
 - [ ] fix scroll in right message section
 
