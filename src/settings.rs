@@ -56,7 +56,7 @@ impl Settings {
         let app_signing_secret = require_env_var("APP_SIGNING_SECRET")?;
         let app_signing_secret = Secret::new(app_signing_secret);
 
-        let dictionary = read_dictionary()?;
+        let dictionary = make_dictionary();
 
         Ok(Self {
             app_env,
@@ -142,14 +142,19 @@ impl Debug for Dictionary {
     }
 }
 
-fn read_dictionary() -> anyhow::Result<Dictionary> {
-    let dict_path = std::env::current_dir()?.join("config/dictionary.txt");
-    let dict_str = std::fs::read_to_string(dict_path).context("failed to read dictionary")?;
+fn make_dictionary() -> Dictionary {
+    let adjectives = vec![
+        "fall", "spring", "winter", "summer", "dark", "light", "warm", "cold", "tall", "short",
+        "wet", "dry", "small", "big", "arctic",
+    ];
 
-    let chunks: Vec<_> = dict_str.split("\n\n").collect();
+    let nouns = vec![
+        "mountain", "desert", "ocean", "island", "swamp", "savanna", "taiga", "river", "bug",
+        "bird", "lizard", "wizard", "deer", "porpoise",
+    ];
 
-    let adjectives: Vec<String> = chunks[0].split_whitespace().map(String::from).collect();
-    let nouns: Vec<String> = chunks[1].split_whitespace().map(String::from).collect();
+    let adjectives: Vec<String> = adjectives.into_iter().map(str::to_owned).collect();
+    let nouns: Vec<String> = nouns.into_iter().map(str::to_owned).collect();
 
-    Ok(Dictionary { adjectives, nouns })
+    Dictionary { adjectives, nouns }
 }
