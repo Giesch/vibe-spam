@@ -2,7 +2,7 @@
 
 This is a toy chat server I've used to gain familiarity with a number of things I'm interested in. It only supports emoji and generated room names, so that I don't have to moderate it.
 
-The backend uses axum and async-graphql; the frontend uses elm-spa and elm-graphql. It's deployed at https://vibe-spam.fly.dev.
+The backend uses axum and async-graphql; the frontend uses elm-spa and elm-graphql. It's deployed at https://vibe-spam.fly.dev. Messages are stored in postgres, and published on redis channels.
 
 The [todo file](./todo.org) contains things I still want to fix/finish. The [client readme](./client/README.md) has commands related to frontend development.
 
@@ -53,9 +53,9 @@ https://github.com/launchbadge/sqlx/tree/master/sqlx-cli
 sqlx migrate add -r migration_name
 ```
 
-### to migrate in prod, from this directory:
+### to migrate in prod:
 
-first, start the fly db proxy:
+first (from this directory), start the fly db proxy:
 
 ```sh
 flyctl proxy 5432 -a vibe-spam-postgres
