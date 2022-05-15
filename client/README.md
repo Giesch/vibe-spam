@@ -9,15 +9,18 @@
 ## scripts
 
 ```bash
-npm start       # initial developer setup; runs setup and dev
-npm run setup   # installs dependencies and generates code
-npm run dev     # dev server; runs elm-spa and Vite
-npm run api     # generate graphql api modules
-npm run tw      # generate tailwind css modules
-npm run docker  # used in the Dockerfile; runs setup and build
-npm run build   # production codegen and vite build
+npm start             # initial developer setup; runs setup and dev
+npm run setup         # installs dependencies and generates code
+npm run dev           # dev server; runs elm-spa and Vite
+npm run api:schema    # generate graphql schema file from backend
+npm run api:local     # generate graphql api elm modules from schema file
+npm run api:prod      # generate graphql api modules from deployed prod schema
+npm run tw            # generate tailwind css modules
+npm run build:docker  # used in the Dockerfile; runs setup and build
+npm run build:github  # used in GitHub Actions CI
 npm run config:local  # use local api server
 npm run config:prod   # use prod api server
+npm run review        # run elm-review
 ```
 
 ## dependencies

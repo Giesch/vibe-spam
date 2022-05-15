@@ -23,7 +23,7 @@ pub fn make_router(
     schema: VibeSpam,
     db: PgPool,
     redis: Pool<RedisConnectionManager>,
-    settings: Settings,
+    settings: Arc<Settings>,
 ) -> anyhow::Result<Router> {
     let assets = static_files::list_assets_dir(&settings.dist)?;
     let cookie_key = Key::from(settings.app_signing_secret.expose_secret().as_bytes());
@@ -42,7 +42,7 @@ pub fn make_router(
         .layer(Extension(schema))
         .layer(Extension(db))
         .layer(Extension(redis))
-        .layer(Extension(Arc::new(settings)))
+        .layer(Extension(settings))
         .layer(Extension(Arc::new(assets)))
         .layer(Extension(Arc::new(cookie_key)))
         .layer(CookieManagerLayer::new());

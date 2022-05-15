@@ -12,7 +12,6 @@ async fn main() -> anyhow::Result<()> {
     let app = App::build(settings).await?;
 
     tracing::info!("listening on {:?}", app.address());
-
     app.run().await?;
 
     Ok(())

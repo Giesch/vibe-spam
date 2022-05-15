@@ -2,6 +2,7 @@
 name = "vibe-spam"
 version = "0.1.0"
 edition = "2021"
+default-run = "vibe-spam"
 
 [[bin]]
 name = "vibe-spam"
@@ -27,6 +28,7 @@ futures = "0.3.21"
 futures-core = "0.3.21"
 hyper = "0.14.17"
 mime = "0.3.16"
+rand = "0.8.5"
 secrecy = { version = "0.8.0", features = ["serde"] }
 serde = { version = "1.0.136", features = ["derive"] }
 serde-aux = "3.0.1"

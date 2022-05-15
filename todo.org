@@ -1,48 +1,51 @@
 * Now
-- [-] add a way to generate local gql api
-  - [X] use that for ci
-  - [ ] make the prod one optional in CI
-- [X] fix new room button
-- [ ] fix insecure websocket
+- [X] add BE chat mutation (create/publish a message)
+- [X] add FE chat mutation (create/publish a message)
+- [ ] fix scroll in right message section
 
 * Next
-- [ ] use ints for times in json instead of DateTime
-  - [ ] first, remove created_at completely from the api side
-    - [ ] deploy that
-  - [ ] add a way to generate types from the local gql api
-  - [ ] add a custom scalar that just wraps the int
-  - [ ] remove the packages for utc time
-
-- [ ] add chat room page
-- [ ] remove expect calls from pubsub
-  panicing might be right, but the joinhandle result has to be handled
-  a decode error in a message the server sent to itself is a programmer error
-
-- [ ] unsubscribe from lobby on leaving lobby
-  this might require some special link handler in Main.elm
-  need an 'unsubscribe from all' toJs port msg?
-  - could just call that on all page transitions
+- [ ] tests for lobby subscription
+  this will need multiple test gql clients
+- [ ] use a pending state for messages initally loading
 
 * Soon
-- [ ] tests for subscriptions
-  this will need multiple test gql clients
 - [ ] test lobby flag with actual rooms present
   just need to create a room in the test
+- [ ] display nicer date/time for last activity
+  need richard's iso 8601 package that asks itself not to be used
+- [ ] unsubscribe from lobby on leaving lobby?
+  this would require a special link handler in Main.elm
+  need an 'unsubscribe from all' toJs port msg?
+  - could just call that on all page transitions (before Page.init)
+- [ ] remove expect calls from pubsub?
+  panicing might be right, but the joinhandle result has to be handled
+  a decode error in a message that the server sent to itself is a programmer error,
+  not a user error
+- [ ] pending state when adding a room - can't be optimistic b/c generated name
+- [ ] make the random room name dictionary larger
+- [ ] customize custom scalars
+  more custom id types (vs broad Uuid)
+  add helper methods to those modules
+  avoid duplicating Emoji type
 
 * Someday
 - [ ] make the axum fallback route in local dev point back to vite server
 - [ ] use elm-ts-interop for ports
-  convert main.js to ts? does vite make this easy?
+  - [ ] convert js files to ts
 - [ ] see if it's possible to switch from urql to urql-core
-- [ ] optimistic updates?
 - [ ] disconnect/reconnect handling for subscriptions
   - mimic phoenix channels - exponential backoff
 - [ ] tracing with honeycomb
 - [ ] NotFound page
 - [ ] is the elm build not caching deps correctly?
   scripts include calls to 'npm ci'
-- [ ] use structured build config:
+- [ ] use a more structured build config like:
   https://github.com/MattCheely/elm-build-config
+- [ ] consider using flume instead of tokio broadcast
+- [ ] run ci elm build against both prod gql schema and branch/local gql schema
+- [ ] make one command for switching between local api and prod api
+  do all of: change config, regnerate schema file, and regenerate elm modules
+- [ ] figure out if replicated redis on fly is viable for something like this
 
 * Other
 - [-] catch up reading z2p
@@ -50,4 +53,14 @@
 - [ ] elm-review editor setup
   - [ ] disable elm analyze emacs setup - this is in lsp?
   - [ ] add elm review emacs setup (or switch to intellij?)
-  - [ ] investigate elm-pair emacs setup
+- [ ] use ints for times in json instead of DateTime?
+- [ ] make a 'banned identifier names' elm review rule (eg 'todo', 'replaceme')
+
+* Next Time
+- don't use elm-tailwind-modules, it probably can't support TW 3.0
+- use a configured default app database in prod instead of 'postgres'
+- use different types for redis serialization and graphql
+- always send result types in a subscription stream
+  and always use boxed streams instead of plain generics
+- use customized scalar codecs from the beginning, if using graphql
+- consider openapi & axum typed websocket instead of graphql

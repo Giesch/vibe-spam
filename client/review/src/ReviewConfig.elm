@@ -19,6 +19,7 @@ import NoForbiddenWords
 import NoImportingEverything
 import NoMissingTypeAnnotation
 import NoMissingTypeAnnotationInLetIn
+import NoMissingTypeConstructor
 import NoMissingTypeExpose
 import NoPrematureLetComputation
 import NoSimpleLetBody
@@ -48,18 +49,19 @@ config =
         , NoMissingTypeExpose.rule
         , NoSimpleLetBody.rule
         , NoPrematureLetComputation.rule
-        , Rule.ignoreErrorsForFiles [ "src/Shared.elm" ] <|
-            NoUnused.CustomTypeConstructors.rule []
+        , (NoUnused.CustomTypeConstructors.rule [])
+            |> Rule.ignoreErrorsForFiles [ "src/Shared.elm" ]
         , NoUnused.CustomTypeConstructorArgs.rule
         , NoUnused.Dependencies.rule
-        , Rule.ignoreErrorsForFiles [ "src/Shared/Session.elm" ]
-            NoUnused.Exports.rule
+        , NoUnused.Exports.rule
+            |> Rule.ignoreErrorsForFiles [ "src/Shared/Session.elm" ]
         , NoUnused.Modules.rule
         , NoUnused.Parameters.rule
         , NoUnused.Patterns.rule
         , NoUnused.Variables.rule
         , Simplify.rule Simplify.defaults
         , NoForbiddenWords.rule [ "TODO", "FIXME" ]
+        , NoMissingTypeConstructor.rule
         ]
 
 

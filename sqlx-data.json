@@ -1,5 +1,57 @@
 {
   "db": "PostgreSQL",
+  "3bf579742572ff58998fb0e5561908f8358e22f107712d0e47eecd3433a326ed": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "room_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "author_session_id",
+          "ordinal": 2,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "content",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 4,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 5,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Text"
+        ]
+      }
+    },
+    "query": "\n            INSERT INTO chat_messages (\n              room_id,\n              author_session_id,\n              content\n            )\n            VALUES ($1, $2, $3) RETURNING *\n        "
+  },
   "70d501bdc85b04fc40fa92c599432fc63329dd6e35496a0970c77f6c8698ef30": {
     "describe": {
       "columns": [
@@ -17,6 +69,44 @@
       }
     },
     "query": "SELECT 1 AS one"
+  },
+  "a77bac4904de707a34dcb0727c7e0ae6fab9af69058b6d2baac3597ab25aede8": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "title",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "\n            SELECT *\n            FROM rooms\n            WHERE title = $1\n            ORDER BY updated_at DESC\n            LIMIT 1\n        "
   },
   "ab8963c5987d4e22d01cf5ce8ab65677d6bcafb24d866f2039a4a70f291aa6b6": {
     "describe": {
@@ -91,5 +181,55 @@
       }
     },
     "query": "\n            INSERT INTO rooms (title)\n            VALUES ($1) RETURNING *\n        "
+  },
+  "ec1547da22c784491512d9caea4c9f021d4ac78cff490ea14358d9a1101e258e": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "room_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "author_session_id",
+          "ordinal": 2,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "content",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 4,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 5,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      }
+    },
+    "query": "\n            SELECT *\n            FROM chat_messages\n            WHERE room_id = $1\n            ORDER BY created_at DESC\n            LIMIT 50\n        "
   }
 }

@@ -1,10 +1,13 @@
 use anyhow::Context;
+use rand::seq::SliceRandom;
 use secrecy::{ExposeSecret, Secret};
+use serde::Deserialize;
 use serde_aux::field_attributes::deserialize_number_from_string;
 use sqlx::postgres::PgConnectOptions;
+use std::fmt::Debug;
 use std::str::FromStr;
 
-#[derive(serde::Deserialize, Clone)]
+#[derive(serde::Deserialize, Clone, Debug)]
 pub struct Settings {
     pub app_env: Env,
 
@@ -23,6 +26,9 @@ pub struct Settings {
     pub app_url: String,
 
     pub app_signing_secret: Secret<String>,
+
+    /// The 'random' words to use for room names
+    pub dictionary: Dictionary,
 }
 
 impl Settings {
@@ -50,6 +56,8 @@ impl Settings {
         let app_signing_secret = require_env_var("APP_SIGNING_SECRET")?;
         let app_signing_secret = Secret::new(app_signing_secret);
 
+        let dictionary = read_dictionary()?;
+
         Ok(Self {
             app_env,
             app_host,
@@ -59,6 +67,7 @@ impl Settings {
             dist,
             app_url,
             app_signing_secret,
+            dictionary,
         })
     }
 
@@ -100,4 +109,47 @@ impl FromStr for Env {
 pub enum ParseEnvError {
     #[error("{0} is not a valid env, use local or prod")]
     Failed(String),
+}
+
+#[derive(Clone, Deserialize)]
+pub struct Dictionary {
+    pub adjectives: Vec<String>,
+    pub nouns: Vec<String>,
+}
+
+impl Dictionary {
+    pub fn random_adjective(&self) -> &str {
+        let mut rng = rand::thread_rng();
+        self.adjectives
+            .choose(&mut rng)
+            .expect("expected adjectives to be nonempty")
+    }
+
+    pub fn random_noun(&self) -> &str {
+        let mut rng = rand::thread_rng();
+        self.nouns
+            .choose(&mut rng)
+            .expect("expected nouns to be nonempty")
+    }
+}
+
+impl Debug for Dictionary {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Dictionary")
+            .field("adjectives", &self.adjectives.len())
+            .field("nouns", &self.nouns.len())
+            .finish()
+    }
+}
+
+fn read_dictionary() -> anyhow::Result<Dictionary> {
+    let dict_path = std::env::current_dir()?.join("config/dictionary.txt");
+    let dict_str = std::fs::read_to_string(dict_path).context("failed to read dictionary")?;
+
+    let chunks: Vec<_> = dict_str.split("\n\n").collect();
+
+    let adjectives: Vec<String> = chunks[0].split_whitespace().map(String::from).collect();
+    let nouns: Vec<String> = chunks[1].split_whitespace().map(String::from).collect();
+
+    Ok(Dictionary { adjectives, nouns })
 }

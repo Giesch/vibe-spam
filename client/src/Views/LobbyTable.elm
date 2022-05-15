@@ -1,10 +1,11 @@
-module Components.LobbyTable exposing
+module Views.LobbyTable exposing
     ( Config
     , RoomRow
     , view
     )
 
 import Css
+import Gen.Route as Route exposing (Route)
 import Html.Styled exposing (..)
 import Html.Styled.Attributes as Attr exposing (css)
 import Html.Styled.Events as Events
@@ -21,7 +22,7 @@ type alias Config msg =
 type alias RoomRow =
     { title : String
     , lastActivity : String
-    , joinLink : String
+    , joinLink : Route
     }
 
 
@@ -156,7 +157,7 @@ viewRow roomRow =
                 ]
             ]
             [ a
-                [ Attr.href roomRow.joinLink
+                [ Attr.href <| Route.toHref roomRow.joinLink
                 , css
                     [ Tw.text_green_600
                     , Css.hover [ Tw.text_green_900 ]

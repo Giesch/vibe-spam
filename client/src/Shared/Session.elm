@@ -2,15 +2,16 @@ module Shared.Session exposing (Session, decoder, id)
 
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as JDP
+import VibeSpam.Scalar as Scalar exposing (Uuid)
 
 
 type Session
     = Session SessionJson
 
 
-id : Session -> String
+id : Session -> Uuid
 id (Session session) =
-    session.sessionId
+    Scalar.Uuid session.sessionId
 
 
 decoder : Decoder Session

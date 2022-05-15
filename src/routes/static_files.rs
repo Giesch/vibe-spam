@@ -1,4 +1,4 @@
-use crate::schema::LobbyResponse;
+use crate::schema::Lobby;
 use crate::session::{self, Session};
 
 use crate::schema::lobby;
@@ -77,7 +77,7 @@ fn error_to_500_sync(error: impl core::fmt::Debug) -> StatusCode {
 #[serde(rename_all = "camelCase")]
 pub struct ElmFlagsJson {
     session: ElmSessionJson,
-    lobby: LobbyResponse,
+    lobby: Lobby,
 }
 
 // NOTE this needs to match the elm struct Shared.Session

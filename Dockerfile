@@ -1,4 +1,4 @@
-FROM lukemathwalker/cargo-chef:latest-rust-1.59.0 as chef
+FROM lukemathwalker/cargo-chef:latest-rust-1.60.0 as chef
 WORKDIR /app
 RUN apt-get update && apt-get install lld clang -y
 
@@ -14,11 +14,13 @@ RUN cargo chef cook --release --recipe-path recipe.json
 COPY . .
 ENV SQLX_OFFLINE true
 # Build our project
-RUN cargo build --release --bin vibe-spam
+RUN cargo build --release --bin vibe-spam && \
+    cargo run --bin gen-schema ./schema.graphql
 
 FROM node:16 as elm-builder
 WORKDIR /client
 COPY ./client .
+COPY --from=builder /app/schema.graphql schema.graphql
 RUN npm run build:docker
 
 FROM debian:bullseye-slim AS runtime

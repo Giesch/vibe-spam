@@ -40,23 +40,36 @@ export async function init() {
 
   const app = Elm.Main.init({ flags });
 
-  let unsubscribeFromLobby = () => undefined;
-
   app.ports.toJs.subscribe(({ kind, value }) => {
     switch (kind) {
       case "lobby-subscribe":
-        const { unsubscribe } = pipe(
+        pipe(
           gqlClient.subscription(value),
+
           subscribe((result) => {
-            app.ports.fromJs.send({ kind: "lobby-updated", value: result });
+            app.ports.fromJs.send({
+              kind: "lobby-updated",
+              value: result,
+            });
           })
         );
 
-        unsubscribeFromLobby = unsubscribe;
         break;
 
-      case "lobby-unsubscribe":
-        unsubscribeFromLobby();
+      case "chat-room-subscribe":
+        const { roomTitle, document } = value;
+
+        pipe(
+          gqlClient.subscription(document),
+
+          subscribe((result) => {
+            app.ports.fromJs.send({
+              kind: "chat-room-updated",
+              value: { result, roomTitle },
+            });
+          })
+        );
+
         break;
     }
   });

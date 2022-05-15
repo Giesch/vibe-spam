@@ -3,20 +3,21 @@ module Pages.Home_ exposing (Model, Msg, page)
 import Api
 import Api.LobbyData exposing (LobbyData)
 import Api.RoomData exposing (RoomData)
-import Components.LobbyTable as LobbyTable
-import Css
 import Effect exposing (Effect)
 import Gen.Params.Home_ exposing (Params)
 import Html.Styled exposing (..)
-import Html.Styled.Attributes as Attrs exposing (css)
+import Html.Styled.Attributes exposing (css)
 import Json.Decode as Decode
 import Page
 import Ports
 import Request
 import Shared
+import Shared.Routes as Routes
 import Shared.Session exposing (Session)
 import Tailwind.Utilities as Tw
 import View exposing (View)
+import Views.LobbyTable as LobbyTable
+import Views.PageHeader as PageHeader
 
 
 page : Shared.Model -> Request.With Params -> Page.With Model Msg
@@ -72,8 +73,12 @@ update msg model =
             , Effect.none
             )
 
+        FromJs (Ok _) ->
+            -- chat room update
+            ( model, Effect.none )
+
         FromJs (Err error) ->
-            ( { model | lobby = Err <| Decode.errorToString error }
+            ( { model | lobby = Err (Decode.errorToString error) }
             , Effect.none
             )
 
@@ -102,22 +107,26 @@ subscriptions _ =
 
 view : Model -> View Msg
 view model =
-    { title = "vibe spam"
+    { title = "vibespam"
     , body = layout model
     }
 
 
 layout : Model -> List (Html Msg)
 layout model =
-    [ pageHeader
-    , main_ [ css [ Tw.flex_grow ] ]
-        [ case model.lobby of
-            Ok lobby ->
-                content lobby
+    let
+        mainContent : Html Msg
+        mainContent =
+            case model.lobby of
+                Ok lobby ->
+                    content lobby
 
-            Err error ->
-                text ("Oops! Something went wrong: " ++ error)
-        ]
+                Err error ->
+                    text ("Oops! Something went wrong: " ++ error)
+    in
+    [ PageHeader.view
+    , main_ [ css [ Tw.flex_grow ] ]
+        [ mainContent ]
     ]
 
 
@@ -128,7 +137,7 @@ content lobby =
         toRoomRow room =
             { title = room.title
             , lastActivity = "2022 04 01"
-            , joinLink = "#"
+            , joinLink = Routes.rooms { slug = room.title }
             }
     in
     div [ css [ Tw.px_32, Tw.py_16 ] ]
@@ -139,29 +148,3 @@ content lobby =
                 }
             ]
         ]
-
-
-pageHeader : Html msg
-pageHeader =
-    let
-        headerStyles : List Css.Style
-        headerStyles =
-            [ Tw.bg_green_500
-            , Tw.text_white
-            , Tw.p_6
-            , Tw.flex
-            , Tw.items_end
-            , Tw.space_x_10
-            ]
-    in
-    header [ css headerStyles ]
-        [ div [ css [ Tw.text_2xl, Tw.font_bold, Tw.pr_12 ] ]
-            [ text "vibespam" ]
-        , tabLink { name = "lobby", href = "/" }
-        ]
-
-
-tabLink : { name : String, href : String } -> Html msg
-tabLink { name, href } =
-    a [ css [ Tw.text_lg ], Attrs.href href ]
-        [ text name ]
