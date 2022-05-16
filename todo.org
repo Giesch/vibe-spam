@@ -10,6 +10,8 @@
     - [ ] need a library? rtfeldman 8601?
   - [ ] update the room's updated_at when adding a message
 - [ ] fix scroll in right message section
+  messages overflow past the top of the screen
+- [ ] delete Query::lobby, it's unused and misleading
 
 * Next
 - [ ] tests for lobby subscription
