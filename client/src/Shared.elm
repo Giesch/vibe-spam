@@ -12,7 +12,6 @@ import Json.Decode as Decode
 import Request exposing (Request)
 import Shared.Flags as Flags exposing (Flags)
 import Shared.Session exposing (Session)
-import Task
 import Time
 
 
@@ -32,9 +31,7 @@ init _ flagsJson =
     let
         flags : Flags
         flags =
-            Decode.decodeValue
-                (debug "flags decoder" Flags.decoder)
-                flagsJson
+            Decode.decodeValue Flags.decoder flagsJson
                 |> Result.withDefault Flags.default
     in
     ( { session = flags.session
@@ -43,21 +40,6 @@ init _ flagsJson =
       }
     , Cmd.none
     )
-
-
-debug : String -> Decode.Decoder a -> Decode.Decoder a
-debug message d =
-    Decode.value
-        |> Decode.andThen (debugHelper message d)
-
-
-debugHelper : String -> Decode.Decoder a -> Decode.Value -> Decode.Decoder a
-debugHelper message d value =
-    let
-        _ =
-            Debug.log message (Decode.decodeValue d value)
-    in
-    d
 
 
 update : Request -> Msg -> Model -> ( Model, Cmd Msg )

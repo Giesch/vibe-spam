@@ -5,7 +5,7 @@ module Shared.Flags exposing
     )
 
 import Api.LobbyData as LobbyData exposing (LobbyData)
-import Dict exposing (Dict)
+import Dict
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 import Shared.Session as Session exposing (Session)

@@ -2,7 +2,6 @@ module ScalarCodecs.Uuid exposing
     ( Uuid
     , codec
     , decoder
-    , encode
     , fromString
     )
 

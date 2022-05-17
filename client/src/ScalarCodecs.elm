@@ -1,4 +1,4 @@
-module ScalarCodecs exposing (..)
+module ScalarCodecs exposing (PosixTime, Uuid, codecs)
 
 {-| Custom Scalar Codecs
 

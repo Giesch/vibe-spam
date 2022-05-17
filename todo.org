@@ -20,10 +20,10 @@
 - [ ] delete Query::lobby, it's unused and misleading
 
 * Next
+- [ ] e2e testing with cypress
+  - [ ] should display error for flags decode failure (no emoji button panel)
 - [ ] tests for lobby subscription
   this will need multiple test gql clients
-- [ ] e2e testing with cypress
-  - [ ] should display error for flags decode failure
 - [ ] use a pending state for messages initally loading
 
 * Soon

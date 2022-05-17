@@ -1,7 +1,6 @@
 module ScalarCodecs.PosixTime exposing
     ( codec
     , decoder
-    , encode
     )
 
 import Graphql.Codec exposing (Codec)

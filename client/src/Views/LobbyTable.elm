@@ -11,7 +11,6 @@ import Html.Styled.Attributes as Attr exposing (css)
 import Html.Styled.Events as Events
 import Tailwind.Breakpoints as Bp
 import Tailwind.Utilities as Tw
-import Time
 
 
 type alias Config msg =

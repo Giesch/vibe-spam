@@ -18,7 +18,7 @@ import Json.Decode as Decode
 import Page
 import Ports
 import Request
-import ScalarCodecs.Uuid as Uuid exposing (Uuid)
+import ScalarCodecs.Uuid exposing (Uuid)
 import Shared
 import Shared.Session as Session
 import Tailwind.Utilities as Tw
@@ -221,8 +221,6 @@ viewMessage sessionId messageData =
 
 viewEmojiPanel : Html Msg
 viewEmojiPanel =
-    -- TODO don't display this if no session id
-    -- show some kind of error
     let
         styles : List Style
         styles =
