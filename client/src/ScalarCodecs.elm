@@ -3,20 +3,36 @@ module ScalarCodecs exposing (..)
 import Json.Decode as Decode exposing (Decoder)
 import Json.Encode as Encode
 import ScalarCodecs.Uuid as Uuid
-import VibeSpam.Scalar exposing (defaultCodecs)
+import Time
+import VibeSpam.Scalar
 
 
-type alias DateTime =
-    VibeSpam.Scalar.DateTime
+type alias PosixTime =
+    Time.Posix
 
 
 type alias Uuid =
     Uuid.Uuid
 
 
-codecs : VibeSpam.Scalar.Codecs DateTime Uuid
+codecs : VibeSpam.Scalar.Codecs Time.Posix Uuid
 codecs =
     VibeSpam.Scalar.defineCodecs
-        { codecDateTime = defaultCodecs.codecDateTime
-        , codecUuid = Uuid.codec
+        { codecUuid = Uuid.codec
+        , codecPosixTime =
+            { encoder = posixEncoder
+            , decoder = posixDecoder
+            }
         }
+
+
+posixEncoder : Time.Posix -> Encode.Value
+posixEncoder posix =
+    posix
+        |> Time.posixToMillis
+        |> Encode.int
+
+
+posixDecoder : Decoder Time.Posix
+posixDecoder =
+    Decode.map Time.millisToPosix Decode.int

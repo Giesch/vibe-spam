@@ -13,12 +13,12 @@ import Graphql.Operation exposing (RootSubscription)
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet)
 import Json.Decode exposing (Decoder)
 import ScalarCodecs.Uuid as Uuid exposing (Uuid)
+import Time
 import VibeSpam.Enum.Emoji exposing (Emoji)
 import VibeSpam.Object as Object
 import VibeSpam.Object.ChatMessage as ChatMessage
 import VibeSpam.Object.Lobby as Lobby
 import VibeSpam.Object.Room as Room
-import VibeSpam.ScalarCodecs exposing (DateTime)
 import VibeSpam.Subscription as Subscription
 
 
@@ -81,7 +81,7 @@ type alias ChatMessageData =
     { id : Uuid
     , authorSessionId : Uuid
     , emoji : Emoji
-    , updatedAt : DateTime
+    , updatedAt : Time.Posix
     }
 
 

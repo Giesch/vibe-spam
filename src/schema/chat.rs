@@ -2,8 +2,8 @@ use sqlx::PgPool;
 use std::str::FromStr;
 use uuid::Uuid;
 
-use super::chat_repo;
 use super::chat_repo::ChatMessageRow;
+use super::{chat_repo, PosixTime};
 use super::{ChatMessage, Emoji, NewMessage};
 use crate::pubsub::ChatMessagePublisher;
 
@@ -65,7 +65,7 @@ impl TryFrom<ChatMessageRow> for ChatMessage {
             id: row.id,
             room_id: row.room_id,
             author_session_id: row.author_session_id,
-            updated_at: row.updated_at,
+            updated_at: row.updated_at.into(),
         })
     }
 }

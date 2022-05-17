@@ -1,9 +1,12 @@
 * Now
 - [X] add BE chat mutation (create/publish a message)
 - [X] add FE chat mutation (create/publish a message)
-- [ ] display correct 'last activity'
-  - [ ] use room's updated_at in frontend
-    - [ ] switch to custom codecs first
+- [-] display correct 'last activity'
+  - [-] use room's updated_at in frontend
+    - [-] switch to custom codecs first
+      - [X] use a custom uuid
+      - [X] use posix time instead of iso
+      - [ ] use a single emoji type
     - [ ] include in flags
     - [ ] include in gql query
   - [ ] format updated_at nicely
@@ -56,6 +59,7 @@
 - [ ] make one command for switching between local api and prod api
   do all of: change config, regnerate schema file, and regenerate elm modules
 - [ ] figure out if replicated redis on fly is viable for something like this
+- [ ] put the docker compose on a non-standard port or something
 
 * Other
 - [-] catch up reading z2p
@@ -74,3 +78,4 @@
   and always use boxed streams instead of plain generics
 - use customized scalar codecs from the beginning, if using graphql
 - consider openapi & axum typed websocket instead of graphql
+- use a config library from the beginning (yaml can at least handle lists)
