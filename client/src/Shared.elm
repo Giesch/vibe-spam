@@ -10,37 +10,54 @@ module Shared exposing
 import Api.LobbyData exposing (LobbyData)
 import Json.Decode as Decode
 import Request exposing (Request)
-import Shared.Flags
+import Shared.Flags as Flags exposing (Flags)
 import Shared.Session exposing (Session)
+import Task
+import Time
 
 
 type alias Model =
-    -- NOTE for now, this matches Flags
     { session : Maybe Session
     , lobby : LobbyData
+    , timeZone : Time.Zone
     }
 
 
 type Msg
-    = NoOp
+    = None
 
 
 init : Request -> Decode.Value -> ( Model, Cmd Msg )
 init _ flagsJson =
     let
-        flags : Model
+        flags : Flags
         flags =
-            Decode.decodeValue Shared.Flags.decoder flagsJson
-                |> Result.withDefault default
+            Decode.decodeValue
+                (debug "flags decoder" Flags.decoder)
+                flagsJson
+                |> Result.withDefault Flags.default
     in
-    ( flags, Cmd.none )
+    ( { session = flags.session
+      , lobby = flags.lobby
+      , timeZone = flags.timeZone
+      }
+    , Cmd.none
+    )
 
 
-default : Model
-default =
-    { session = Nothing
-    , lobby = { rooms = [] }
-    }
+debug : String -> Decode.Decoder a -> Decode.Decoder a
+debug message d =
+    Decode.value
+        |> Decode.andThen (debugHelper message d)
+
+
+debugHelper : String -> Decode.Decoder a -> Decode.Value -> Decode.Decoder a
+debugHelper message d value =
+    let
+        _ =
+            Debug.log message (Decode.decodeValue d value)
+    in
+    d
 
 
 update : Request -> Msg -> Model -> ( Model, Cmd Msg )

@@ -3,6 +3,7 @@ module ScalarCodecs.Uuid exposing
     , codec
     , decoder
     , encode
+    , fromString
     )
 
 import Graphql.Codec exposing (Codec)
@@ -23,9 +24,14 @@ codec =
 
 decoder : Decoder Uuid
 decoder =
-    Decode.string |> Decode.map Uuid
+    Decode.map Uuid Decode.string
 
 
 encode : Uuid -> Encode.Value
 encode (Uuid raw) =
     Encode.string raw
+
+
+fromString : String -> Uuid
+fromString raw =
+    Uuid raw

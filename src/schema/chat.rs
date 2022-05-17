@@ -2,8 +2,8 @@ use sqlx::PgPool;
 use std::str::FromStr;
 use uuid::Uuid;
 
+use super::chat_repo;
 use super::chat_repo::ChatMessageRow;
-use super::{chat_repo, PosixTime};
 use super::{ChatMessage, Emoji, NewMessage};
 use crate::pubsub::ChatMessagePublisher;
 

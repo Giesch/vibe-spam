@@ -15,6 +15,7 @@ import Shared
 import Shared.Routes as Routes
 import Shared.Session exposing (Session)
 import Tailwind.Utilities as Tw
+import Time
 import View exposing (View)
 import Views.LobbyTable as LobbyTable
 import Views.PageHeader as PageHeader
@@ -37,6 +38,7 @@ page shared _ =
 type alias Model =
     { session : Maybe Session
     , lobby : Result String LobbyData
+    , zone : Time.Zone
     }
 
 
@@ -44,6 +46,7 @@ init : Shared.Model -> ( Model, Effect Msg )
 init shared =
     ( { session = shared.session
       , lobby = Ok shared.lobby
+      , zone = shared.timeZone
       }
     , Ports.lobbySubscribe
     )
@@ -119,7 +122,7 @@ layout model =
         mainContent =
             case model.lobby of
                 Ok lobby ->
-                    content lobby
+                    content model.zone lobby
 
                 Err error ->
                     text ("Oops! Something went wrong: " ++ error)
@@ -130,13 +133,13 @@ layout model =
     ]
 
 
-content : LobbyData -> Html Msg
-content lobby =
+content : Time.Zone -> LobbyData -> Html Msg
+content zone lobby =
     let
         toRoomRow : RoomData -> LobbyTable.RoomRow
         toRoomRow room =
             { title = room.title
-            , lastActivity = "2022 04 01"
+            , lastActivity = viewLastActivity zone room.updatedAt
             , joinLink = Routes.rooms { slug = room.title }
             }
     in
@@ -148,3 +151,67 @@ content lobby =
                 }
             ]
         ]
+
+
+viewLastActivity : Time.Zone -> Time.Posix -> String
+viewLastActivity zone posix =
+    let
+        year : String
+        year =
+            posix
+                |> Time.toYear zone
+                |> String.fromInt
+
+        month : String
+        month =
+            posix
+                |> Time.toMonth zone
+                |> monthToDD
+
+        day : String
+        day =
+            posix
+                |> Time.toDay zone
+                |> String.fromInt
+    in
+    year ++ " " ++ month ++ " " ++ day
+
+
+monthToDD : Time.Month -> String
+monthToDD month =
+    case month of
+        Time.Jan ->
+            "01"
+
+        Time.Feb ->
+            "02"
+
+        Time.Mar ->
+            "03"
+
+        Time.Apr ->
+            "04"
+
+        Time.May ->
+            "05"
+
+        Time.Jun ->
+            "06"
+
+        Time.Jul ->
+            "07"
+
+        Time.Aug ->
+            "08"
+
+        Time.Sep ->
+            "09"
+
+        Time.Oct ->
+            "10"
+
+        Time.Nov ->
+            "11"
+
+        Time.Dec ->
+            "12"

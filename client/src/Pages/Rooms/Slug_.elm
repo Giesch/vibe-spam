@@ -221,6 +221,8 @@ viewMessage sessionId messageData =
 
 viewEmojiPanel : Html Msg
 viewEmojiPanel =
+    -- TODO don't display this if no session id
+    -- show some kind of error
     let
         styles : List Style
         styles =

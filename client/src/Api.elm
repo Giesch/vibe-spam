@@ -45,9 +45,10 @@ createRoomMutation =
 
 roomSelection : SelectionSet RoomData Object.Room
 roomSelection =
-    SelectionSet.map2 RoomData
+    SelectionSet.map3 RoomData
         Room.id
         Room.title
+        Room.updatedAt
 
 
 createMessageMutation : CreateMessageRequiredArguments -> SelectionSet () RootMutation

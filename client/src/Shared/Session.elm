@@ -28,4 +28,4 @@ type alias SessionJson =
 decodeJson : Decoder SessionJson
 decodeJson =
     Decode.succeed SessionJson
-        |> JDP.required "sessionId" Uuid.decoder
+        |> JDP.required "sessionId" (Decode.map Uuid.fromString Decode.string)

@@ -1,7 +1,13 @@
 module ScalarCodecs exposing (..)
 
-import Json.Decode as Decode exposing (Decoder)
-import Json.Encode as Encode
+{-| Custom Scalar Codecs
+
+This module is used by the generated code, and has to obey an expected structure.
+<https://github.com/dillonkearns/elm-graphql/blob/master/examples/src/Example07CustomCodecs.elm>
+
+-}
+
+import ScalarCodecs.PosixTime as PosixTime
 import ScalarCodecs.Uuid as Uuid
 import Time
 import VibeSpam.Scalar
@@ -18,21 +24,6 @@ type alias Uuid =
 codecs : VibeSpam.Scalar.Codecs Time.Posix Uuid
 codecs =
     VibeSpam.Scalar.defineCodecs
-        { codecUuid = Uuid.codec
-        , codecPosixTime =
-            { encoder = posixEncoder
-            , decoder = posixDecoder
-            }
+        { codecPosixTime = PosixTime.codec
+        , codecUuid = Uuid.codec
         }
-
-
-posixEncoder : Time.Posix -> Encode.Value
-posixEncoder posix =
-    posix
-        |> Time.posixToMillis
-        |> Encode.int
-
-
-posixDecoder : Decoder Time.Posix
-posixDecoder =
-    Decode.map Time.millisToPosix Decode.int

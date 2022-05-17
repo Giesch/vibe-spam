@@ -26,6 +26,7 @@ pub struct Query;
 
 #[Object]
 impl Query {
+    #[graphql(deprecation = "Use the lobby_updates subscription")]
     async fn lobby<'ctx>(&self, ctx: &'ctx Context<'_>) -> Result<Lobby> {
         let db = ctx.db();
 
@@ -175,6 +176,7 @@ pub struct Lobby {
 }
 
 #[derive(SimpleObject, Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct Room {
     id: Uuid,
     title: String,

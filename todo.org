@@ -2,16 +2,19 @@
 - [X] add BE chat mutation (create/publish a message)
 - [X] add FE chat mutation (create/publish a message)
 - [-] display correct 'last activity'
-  - [-] use room's updated_at in frontend
-    - [-] switch to custom codecs first
+  - [X] use room's updated_at in frontend
+    - [X] switch to custom codecs first
       - [X] use a custom uuid
       - [X] use posix time instead of iso
-      - [ ] use a single emoji type
-    - [ ] include in flags
-    - [ ] include in gql query
-  - [ ] format updated_at nicely
-    - [ ] need a library? rtfeldman 8601?
+    - [X] include in flags
+    - [X] include in gql query
+  - [X] display it in the table
+    - [X] sort the table by updated_at (instead of created_at)
+    - [X] need to get time zone on startup
+    - [X] format it nicely
   - [ ] update the room's updated_at when adding a message
+    - [ ] touch the room row
+    - [ ] publish the new lobby
 - [ ] fix scroll in right message section
   messages overflow past the top of the screen
 - [ ] delete Query::lobby, it's unused and misleading
@@ -19,6 +22,7 @@
 * Next
 - [ ] tests for lobby subscription
   this will need multiple test gql clients
+- [ ] e2e testing with cypress
 - [ ] use a pending state for messages initally loading
 
 * Soon
@@ -69,6 +73,7 @@
   - [ ] add elm review emacs setup (or switch to intellij?)
 - [ ] use ints for times in json instead of DateTime?
 - [ ] make a 'banned identifier names' elm review rule (eg 'todo', 'replaceme')
+- [ ] see if it's possible to add custom enum impls like custom codecs to elm-graphql
 
 * Next Time
 - don't use elm-tailwind-modules, it probably can't support TW 3.0
@@ -79,3 +84,4 @@
 - use customized scalar codecs from the beginning, if using graphql
 - consider openapi & axum typed websocket instead of graphql
 - use a config library from the beginning (yaml can at least handle lists)
+- use github's web component for showing dates, or use elm-ui-with-context
