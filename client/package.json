@@ -11,7 +11,7 @@
     "api:schema": "rm -f schema.graphql && cargo run --bin gen-schema ./schema.graphql",
     "tw": "rm -rf .elm-tailwind-modules && node scripts/generateTailwind.js",
     "setup": "npm ci && npx elm-tooling install && npm run tw",
-    "build:docker": "npm run setup && npm run config:prod && npm run api:schema && elm-spa gen && npm run api:local && vite build",
+    "build:docker": "npm run setup && npm run config:prod && elm-spa gen && npm run api:local && vite build",
     "build:github": "npm run setup && npm run config:local && npm run api:schema && elm-spa gen && npm run api:local && vite build",
     "config:local": "mkdir -p .config && cp config/Local.elm .config/Config.elm && cp config/local.env .env",
     "config:local:prod": "mkdir -p .config && cp config/Prod.elm .config/Config.elm && cp config/local-prod.env .env",
