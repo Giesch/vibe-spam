@@ -75,6 +75,7 @@
 - [ ] use ints for times in json instead of DateTime?
 - [ ] make a 'banned identifier names' elm review rule (eg 'todo', 'replaceme')
 - [ ] see if it's possible to add custom enum impls like custom codecs to elm-graphql
+- [ ] blog post re: time zone options in elm
 
 * Next Time
 - don't use elm-tailwind-modules, it probably can't support TW 3.0
