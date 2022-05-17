@@ -18,11 +18,11 @@ import Json.Decode as Decode
 import Page
 import Ports
 import Request
+import ScalarCodecs.Uuid as Uuid exposing (Uuid)
 import Shared
 import Shared.Session as Session
 import Tailwind.Utilities as Tw
 import VibeSpam.InputObject as InputObject
-import VibeSpam.Scalar exposing (Uuid)
 import View exposing (View)
 import Views.PageHeader as PageHeader
 
