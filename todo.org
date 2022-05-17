@@ -23,6 +23,7 @@
 - [ ] tests for lobby subscription
   this will need multiple test gql clients
 - [ ] e2e testing with cypress
+  - [ ] should display error for flags decode failure
 - [ ] use a pending state for messages initally loading
 
 * Soon
