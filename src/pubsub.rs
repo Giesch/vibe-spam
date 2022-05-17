@@ -2,7 +2,6 @@ use anyhow::Context;
 use bb8::{Pool, PooledConnection};
 use bb8_redis::redis::AsyncCommands;
 use bb8_redis::RedisConnectionManager;
-use chrono::{DateTime, Utc};
 use futures::StreamExt;
 use futures_core::stream::Stream;
 use serde::{Deserialize, Serialize};
@@ -13,6 +12,7 @@ use uuid::Uuid;
 
 use crate::schema::lobby;
 use crate::schema::ChatMessage;
+use crate::schema::PosixTime;
 
 const REDIS_LOBBY_CHANNEL: &str = "vibe_spam:lobby";
 const REDIS_CHAT_MESSAGES_CHANNEL: &str = "vibe_spam:chat_messages";
@@ -27,7 +27,7 @@ pub struct LobbyMessage {
 pub struct RoomMessage {
     pub id: Uuid,
     pub title: String,
-    pub created_at: DateTime<Utc>,
+    pub updated_at: PosixTime,
 }
 
 #[derive(Debug, Clone)]

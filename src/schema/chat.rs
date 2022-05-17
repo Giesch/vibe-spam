@@ -65,7 +65,7 @@ impl TryFrom<ChatMessageRow> for ChatMessage {
             id: row.id,
             room_id: row.room_id,
             author_session_id: row.author_session_id,
-            updated_at: row.updated_at,
+            updated_at: row.updated_at.into(),
         })
     }
 }

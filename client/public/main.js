@@ -20,7 +20,12 @@ const GQL_WS_ROUTE = "/api/graphql/ws";
  * @return {Promise<object>} app - the Elm application
  */
 export async function init() {
-  const flags = await getFlagsForEnv();
+  const serverFlags = await getFlagsForEnv();
+  console.log({ serverFlags });
+
+  const timeZone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const flags = { ...serverFlags, timeZone };
+
   const wsUrl = getWebsocketUrlForEnv();
 
   const wsClient = createWSClient({ url: wsUrl });
@@ -41,12 +46,17 @@ export async function init() {
   const app = Elm.Main.init({ flags });
 
   app.ports.toJs.subscribe(({ kind, value }) => {
+    console.log("recieved toJs msg:");
+    console.log({ kind, value });
+
     switch (kind) {
       case "lobby-subscribe":
         pipe(
           gqlClient.subscription(value),
 
           subscribe((result) => {
+            console.log("sending lobby-updated");
+
             app.ports.fromJs.send({
               kind: "lobby-updated",
               value: result,
@@ -63,6 +73,8 @@ export async function init() {
           gqlClient.subscription(document),
 
           subscribe((result) => {
+            console.log("sending chat-room-updated");
+
             app.ports.fromJs.send({
               kind: "chat-room-updated",
               value: { result, roomTitle },

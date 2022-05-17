@@ -26,6 +26,7 @@ pub struct Query;
 
 #[Object]
 impl Query {
+    #[graphql(deprecation = "Use the lobby_updates subscription")]
     async fn lobby<'ctx>(&self, ctx: &'ctx Context<'_>) -> Result<Lobby> {
         let db = ctx.db();
 
@@ -101,6 +102,17 @@ impl Subscription {
     }
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+pub struct PosixTime(i64);
+
+scalar!(PosixTime, "PosixTime", "Unix epoch time, in milliseconds");
+
+impl From<DateTime<Utc>> for PosixTime {
+    fn from(dt: DateTime<Utc>) -> Self {
+        Self(dt.timestamp_millis())
+    }
+}
+
 // NOTE, this is also used for serializing to redis
 #[derive(SimpleObject, Debug, Clone, Serialize, Deserialize)]
 pub struct ChatMessage {
@@ -108,7 +120,7 @@ pub struct ChatMessage {
     pub emoji: Emoji,
     pub room_id: Uuid,
     pub author_session_id: Uuid,
-    pub updated_at: DateTime<Utc>,
+    pub updated_at: PosixTime,
 }
 
 // NOTE, this is also used for serializing to redis
@@ -164,10 +176,11 @@ pub struct Lobby {
 }
 
 #[derive(SimpleObject, Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct Room {
     id: Uuid,
     title: String,
-    created_at: DateTime<Utc>,
+    updated_at: PosixTime,
 }
 
 impl From<pubsub::LobbyMessage> for Lobby {
@@ -191,7 +204,7 @@ impl From<Room> for pubsub::RoomMessage {
         Self {
             id: room.id,
             title: room.title,
-            created_at: room.created_at,
+            updated_at: room.updated_at,
         }
     }
 }
@@ -201,7 +214,7 @@ impl From<pubsub::RoomMessage> for Room {
         Self {
             id: room.id,
             title: room.title,
-            created_at: room.created_at,
+            updated_at: room.updated_at,
         }
     }
 }
@@ -211,7 +224,7 @@ impl From<lobby_repo::RoomRow> for Room {
         Self {
             id: row.id,
             title: row.title,
-            created_at: row.created_at,
+            updated_at: row.updated_at.into(),
         }
     }
 }

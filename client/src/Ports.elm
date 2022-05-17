@@ -7,6 +7,7 @@ port module Ports exposing
     , subscription
     )
 
+import Api.LobbyData exposing (LobbyData)
 import Api.Subscriptions as Subscriptions
 import Effect exposing (Effect)
 import Json.Decode as Decode exposing (Decoder)
@@ -30,7 +31,7 @@ type alias ChatRoomSubscribeJson =
 
 
 type FromJsMsg
-    = LobbyUpdated Subscriptions.LobbyData
+    = LobbyUpdated LobbyData
     | ChatRoomUpdated (List Subscriptions.ChatMessageData)
 
 

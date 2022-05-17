@@ -2,22 +2,21 @@ module Api.RoomData exposing (RoomData, decoder)
 
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as JDP
-import VibeSpam.Scalar as Scalar exposing (Uuid)
+import ScalarCodecs.PosixTime as PosixTime
+import ScalarCodecs.Uuid as Uuid exposing (Uuid)
+import Time
 
 
 type alias RoomData =
     { id : Uuid
     , title : String
+    , updatedAt : Time.Posix
     }
 
 
 decoder : Decoder RoomData
 decoder =
     Decode.succeed RoomData
-        |> JDP.required "id" uuidDecoder
+        |> JDP.required "id" Uuid.decoder
         |> JDP.required "title" Decode.string
-
-
-uuidDecoder : Decoder Uuid
-uuidDecoder =
-    Scalar.defaultCodecs.codecUuid.decoder
+        |> JDP.required "updatedAt" PosixTime.decoder

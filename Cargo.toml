@@ -16,7 +16,7 @@ path = "src/gen_schema.rs"
 anyhow = "1.0.56"
 askama = { version = "0.11.1", features = ["with-axum"] }
 askama_axum = "0.1.0"
-async-graphql = { version = "3.0.35", features = ["chrono", "uuid", "dataloader"] }
+async-graphql = { version = "3.0.35", features = ["uuid", "dataloader"] }
 async-graphql-axum = "3.0.35"
 axum = { version = "0.4.8", features = ["headers"] }
 bb8 = "0.7.1"

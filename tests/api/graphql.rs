@@ -25,7 +25,9 @@ async fn create_room() {
     let query = r#"
       mutation {
         createRoom {
+          id
           title
+          updatedAt
         }
       }
     "#;

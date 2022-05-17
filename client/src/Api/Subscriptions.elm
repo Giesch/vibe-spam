@@ -1,23 +1,24 @@
 module Api.Subscriptions exposing
     ( ChatMessageData
-    , LobbyData
-    , RoomData
     , chatRoomUpdatesDecoder
     , chatRoomUpdatesDocument
     , lobbyUpdatesDecoder
     , lobbyUpdatesDocument
     )
 
+import Api.LobbyData exposing (LobbyData)
+import Api.RoomData exposing (RoomData)
 import Graphql.Document
 import Graphql.Operation exposing (RootSubscription)
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet)
 import Json.Decode exposing (Decoder)
+import ScalarCodecs.Uuid exposing (Uuid)
+import Time
 import VibeSpam.Enum.Emoji exposing (Emoji)
 import VibeSpam.Object as Object
 import VibeSpam.Object.ChatMessage as ChatMessage
 import VibeSpam.Object.Lobby as Lobby
 import VibeSpam.Object.Room as Room
-import VibeSpam.ScalarCodecs exposing (DateTime, Uuid)
 import VibeSpam.Subscription as Subscription
 
 
@@ -53,34 +54,24 @@ lobbyUpdatesDocument =
     Graphql.Document.serializeSubscription lobbyUpdates
 
 
-type alias LobbyData =
-    { rooms : List RoomData
-    }
-
-
 lobbySelection : SelectionSet LobbyData Object.Lobby
 lobbySelection =
     SelectionSet.map LobbyData (Lobby.rooms roomSelection)
 
 
-type alias RoomData =
-    { id : Uuid
-    , title : String
-    }
-
-
 roomSelection : SelectionSet RoomData Object.Room
 roomSelection =
-    SelectionSet.map2 RoomData
+    SelectionSet.map3 RoomData
         Room.id
         Room.title
+        Room.updatedAt
 
 
 type alias ChatMessageData =
     { id : Uuid
     , authorSessionId : Uuid
     , emoji : Emoji
-    , updatedAt : DateTime
+    , updatedAt : Time.Posix
     }
 
 

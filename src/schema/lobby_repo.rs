@@ -17,7 +17,7 @@ pub async fn list_rooms(db: &PgPool) -> anyhow::Result<Vec<RoomRow>> {
         r#"
             SELECT *
             FROM rooms
-            ORDER BY created_at DESC
+            ORDER BY updated_at DESC
             LIMIT 25
         "#
     )
