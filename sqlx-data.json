@@ -52,6 +52,18 @@
     },
     "query": "\n            INSERT INTO chat_messages (\n              room_id,\n              author_session_id,\n              content\n            )\n            VALUES ($1, $2, $3) RETURNING *\n        "
   },
+  "690c9912c5d2bbb61b80c547b523f8a06ecc83fc9a4463d87234ca2d4f236258": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      }
+    },
+    "query": "\n            UPDATE rooms SET updated_at = NOW()\n            WHERE id = $1\n        "
+  },
   "70d501bdc85b04fc40fa92c599432fc63329dd6e35496a0970c77f6c8698ef30": {
     "describe": {
       "columns": [
