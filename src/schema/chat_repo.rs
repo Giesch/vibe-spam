@@ -91,7 +91,8 @@ pub async fn create_message(
 pub async fn touch_room_updated_at(db: &PgPool, room_id: Uuid) -> anyhow::Result<()> {
     sqlx::query!(
         r#"
-            UPDATE rooms SET updated_at = NOW()
+            UPDATE rooms
+            SET updated_at = NOW()
             WHERE id = $1
         "#,
         room_id
