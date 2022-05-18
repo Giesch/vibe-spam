@@ -56,9 +56,11 @@ impl Mutation {
         new_message: NewMessage,
     ) -> Result<ChatMessage> {
         let db = ctx.db();
-        let mut chat_publisher = ctx.chat_publisher().await?;
+        let chat_publisher = &mut ctx.chat_publisher().await?;
+        let lobby_publisher = &mut ctx.lobby_publisher().await?;
 
-        let message = chat::create_message(db, &mut chat_publisher, new_message).await?;
+        let message =
+            chat::create_message(db, chat_publisher, lobby_publisher, new_message).await?;
 
         Ok(message)
     }

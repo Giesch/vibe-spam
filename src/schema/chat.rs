@@ -2,10 +2,10 @@ use sqlx::PgPool;
 use std::str::FromStr;
 use uuid::Uuid;
 
-use super::chat_repo;
 use super::chat_repo::ChatMessageRow;
-use super::{ChatMessage, Emoji, NewMessage};
-use crate::pubsub::ChatMessagePublisher;
+use super::chat_repo::{self, touch_room_updated_at};
+use super::{lobby, ChatMessage, Emoji, NewMessage};
+use crate::pubsub::{self, ChatMessagePublisher, LobbyPublisher};
 
 pub struct InitialMessages {
     pub room_id: Uuid,
@@ -34,7 +34,8 @@ fn convert_message_rows(rows: Vec<chat_repo::ChatMessageRow>) -> anyhow::Result<
 
 pub async fn create_message(
     db: &PgPool,
-    publisher: &mut ChatMessagePublisher<'_>,
+    chat_publisher: &mut ChatMessagePublisher<'_>,
+    lobby_publisher: &mut LobbyPublisher<'_>,
     new_message: NewMessage,
 ) -> anyhow::Result<ChatMessage> {
     let room = chat_repo::find_room_by_title(db, new_message.room_title).await?;
@@ -48,8 +49,12 @@ pub async fn create_message(
 
     let created_message = chat_repo::create_message(db, new_message).await?;
     let created_message: ChatMessage = created_message.try_into()?;
+    let new_messages = vec![created_message.clone()];
+    chat_publisher.publish(new_messages).await?;
 
-    publisher.publish(vec![created_message.clone()]).await?;
+    touch_room_updated_at(db, room.id).await?;
+    let lobby: pubsub::LobbyMessage = lobby::fetch(db).await?.into();
+    lobby_publisher.publish(&lobby).await?;
 
     Ok(created_message)
 }
