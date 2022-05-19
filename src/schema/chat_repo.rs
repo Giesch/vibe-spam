@@ -86,3 +86,20 @@ pub async fn create_message(
     .await
     .context("failed to insert chat message")
 }
+
+#[tracing::instrument(name = "touch room updated_at query")]
+pub async fn touch_room_updated_at(db: &PgPool, room_id: Uuid) -> anyhow::Result<()> {
+    sqlx::query!(
+        r#"
+            UPDATE rooms
+            SET updated_at = NOW()
+            WHERE id = $1
+        "#,
+        room_id
+    )
+    .fetch_one(db)
+    .await
+    .context("failed to update room")?;
+
+    Ok(())
+}

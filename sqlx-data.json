@@ -106,6 +106,18 @@
     },
     "query": "\n            SELECT *\n            FROM rooms\n            ORDER BY updated_at DESC\n            LIMIT 25\n        "
   },
+  "a19985d8d927ae0d0dc3552f4987dad3a6a9053b75fff4fe574fb5c0ba98a032": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      }
+    },
+    "query": "\n            UPDATE rooms\n            SET updated_at = NOW()\n            WHERE id = $1\n        "
+  },
   "a77bac4904de707a34dcb0727c7e0ae6fab9af69058b6d2baac3597ab25aede8": {
     "describe": {
       "columns": [
